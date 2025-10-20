@@ -14,7 +14,7 @@
     </style>
 </head>
 <body class="p-6">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-[1600px] mx-auto">
         <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
             <div class="flex items-center gap-3 mb-8">
                 <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,11 +23,11 @@
                 <h1 class="text-4xl font-bold text-white">Registro de Transacciones USDT</h1>
             </div>
 
-```
+
         <!-- Formulario -->
         <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
             <h2 class="text-xl font-semibold text-white mb-4">Nueva Transacción</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
                     <option value="Compra">Compra</option>
                     <option value="Venta">Venta</option>
@@ -35,19 +35,22 @@
 
                 <input type="number" id="cantidadUSDT" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
 
-                <select id="divisa" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
-                    <option value="MXN">MXN (Pesos MX)</option>
-                    <option value="USD">USD (Dólares)</option>
-                    <option value="ARS">ARS (Pesos AR)</option>
-                    <option value="DOP">DOP (Pesos DO)</option>
-                    <option value="EUR">EUR (Euros)</option>
+                <select id="divisaPago" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                    <option value="DOP">Pagado en DOP</option>
+                    <option value="USD">Pagado en USD</option>
                 </select>
 
-                <input type="number" id="monto" placeholder="Monto total" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                <input type="number" id="porcentaje" placeholder="% Ganancia/Pérdida" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
                 <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <input type="number" id="precioMercado" placeholder="Precio Mercado (DOP)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="number" id="tuPrecio" placeholder="Tu Precio (DOP)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="number" id="tasaCambio" placeholder="Tasa USD→DOP (opcional)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="text" id="notas" placeholder="Notas (opcional)" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
 
                 <button onclick="agregarTransaccion()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold transition-colors">
                     Agregar
@@ -67,17 +70,21 @@
 
         <!-- Tabla -->
         <div class="overflow-x-auto mb-8">
-            <table class="w-full text-white">
+            <table class="w-full text-white text-sm">
                 <thead>
                     <tr class="border-b border-white/20">
-                        <th class="text-left py-3 px-4 font-semibold text-emerald-400">Tipo</th>
-                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">USDT</th>
-                        <th class="text-left py-3 px-4 font-semibold text-emerald-400">Divisa</th>
-                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">Monto</th>
-                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">Precio Unit.</th>
-                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">%</th>
-                        <th class="text-center py-3 px-4 font-semibold text-emerald-400">Fecha</th>
-                        <th class="text-center py-3 px-4 font-semibold text-emerald-400">Acción</th>
+                        <th class="text-left py-3 px-3 font-semibold text-emerald-400">Tipo</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">USDT</th>
+                        <th class="text-center py-3 px-3 font-semibold text-emerald-400">Pagado en</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Precio Mercado</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tu Precio</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Monto Total</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia/USDT</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia Total</th>
+                        <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tasa USD→DOP</th>
+                        <th class="text-center py-3 px-3 font-semibold text-emerald-400">Fecha</th>
+                        <th class="text-left py-3 px-3 font-semibold text-emerald-400">Notas</th>
+                        <th class="text-center py-3 px-3 font-semibold text-emerald-400">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tablaTransacciones">
@@ -86,7 +93,26 @@
         </div>
 
         <!-- Resumen -->
-        <div id="resumenTotales" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
+                <h3 class="text-emerald-300 font-semibold mb-2 text-lg">Total USDT Comprados</h3>
+                <p class="text-white text-3xl font-bold" id="totalComprados">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
+                <h3 class="text-orange-300 font-semibold mb-2 text-lg">Total USDT Vendidos</h3>
+                <p class="text-white text-3xl font-bold" id="totalVendidos">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
+                <h3 class="text-blue-300 font-semibold mb-2 text-lg">Balance USDT</h3>
+                <p class="text-white text-3xl font-bold" id="balanceUSDT">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-6 border border-purple-500/30">
+                <h3 class="text-purple-300 font-semibold mb-2 text-lg">Ganancia Total (DOP)</h3>
+                <p class="text-white text-3xl font-bold" id="gananciaTotal">0</p>
+            </div>
+        </div>
+
+        <div id="resumenDetallado" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         </div>
     </div>
 </div>
@@ -94,7 +120,6 @@
 <script>
     let transacciones = [];
 
-    // Cargar datos al iniciar
     window.onload = function() {
         cargarDatos();
         document.getElementById('fecha').valueAsDate = new Date();
@@ -115,23 +140,38 @@
     function agregarTransaccion() {
         const tipo = document.getElementById('tipo').value;
         const cantidadUSDT = parseFloat(document.getElementById('cantidadUSDT').value);
-        const divisa = document.getElementById('divisa').value;
-        const monto = parseFloat(document.getElementById('monto').value);
-        const porcentaje = parseFloat(document.getElementById('porcentaje').value) || 0;
+        const divisaPago = document.getElementById('divisaPago').value;
+        const precioMercado = parseFloat(document.getElementById('precioMercado').value);
+        const tuPrecio = parseFloat(document.getElementById('tuPrecio').value);
+        const tasaCambio = parseFloat(document.getElementById('tasaCambio').value) || null;
+        const notas = document.getElementById('notas').value;
         const fecha = document.getElementById('fecha').value;
 
-        if (!cantidadUSDT || !monto || !fecha) {
-            alert('Por favor completa los campos obligatorios: Cantidad USDT, Monto y Fecha');
+        if (!cantidadUSDT || !precioMercado || !tuPrecio || !fecha) {
+            alert('Por favor completa los campos obligatorios: Cantidad USDT, Precio Mercado, Tu Precio y Fecha');
             return;
         }
+
+        // Calcular ganancia por USDT
+        const gananciaPorUSDT = tipo === 'Compra' 
+            ? precioMercado - tuPrecio  // En compra: si el mercado está a 63.70 y pagas 62, ganas 1.70
+            : tuPrecio - precioMercado; // En venta: si vendes a 64 y el mercado está a 63, ganas 1
+
+        const gananciaTotal = gananciaPorUSDT * cantidadUSDT;
+        const montoTotal = tuPrecio * cantidadUSDT;
 
         const transaccion = {
             id: Date.now(),
             tipo,
             cantidadUSDT,
-            divisa,
-            monto,
-            porcentaje,
+            divisaPago,
+            precioMercado,
+            tuPrecio,
+            montoTotal,
+            gananciaPorUSDT,
+            gananciaTotal,
+            tasaCambio,
+            notas,
             fecha
         };
 
@@ -141,8 +181,10 @@
 
         // Limpiar formulario
         document.getElementById('cantidadUSDT').value = '';
-        document.getElementById('monto').value = '';
-        document.getElementById('porcentaje').value = '';
+        document.getElementById('precioMercado').value = '';
+        document.getElementById('tuPrecio').value = '';
+        document.getElementById('tasaCambio').value = '';
+        document.getElementById('notas').value = '';
     }
 
     function eliminarTransaccion(id) {
@@ -151,10 +193,6 @@
             guardarDatos();
             actualizarTabla();
         }
-    }
-
-    function calcularPrecioUnitario(monto, cantidad) {
-        return cantidad > 0 ? (monto / cantidad).toFixed(4) : '0.0000';
     }
 
     function actualizarTabla() {
@@ -166,24 +204,26 @@
             tr.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
 
             const colorTipo = t.tipo === 'Compra' ? 'bg-blue-500/20 text-blue-300' : 'bg-orange-500/20 text-orange-300';
-            const colorPorcentaje = t.porcentaje > 0 ? 'text-green-400' : t.porcentaje < 0 ? 'text-red-400' : 'text-slate-400';
-            const iconoPorcentaje = t.porcentaje > 0 ? '↑' : t.porcentaje < 0 ? '↓' : '';
+            const colorGanancia = t.gananciaTotal > 0 ? 'text-green-400' : t.gananciaTotal < 0 ? 'text-red-400' : 'text-slate-400';
+            const iconoGanancia = t.gananciaTotal > 0 ? '↑' : t.gananciaTotal < 0 ? '↓' : '';
 
             tr.innerHTML = `
-                <td class="py-3 px-4">
-                    <span class="${colorTipo} px-3 py-1 rounded-full text-sm font-medium">${t.tipo}</span>
+                <td class="py-3 px-3">
+                    <span class="${colorTipo} px-3 py-1 rounded-full text-xs font-medium">${t.tipo}</span>
                 </td>
-                <td class="text-right py-3 px-4 font-mono">${t.cantidadUSDT.toFixed(2)}</td>
-                <td class="py-3 px-4">
-                    <span class="px-2 py-1 bg-slate-700 rounded text-sm">${t.divisa}</span>
+                <td class="text-right py-3 px-3 font-mono font-semibold">${t.cantidadUSDT.toLocaleString('es-DO', {minimumFractionDigits: 2})}</td>
+                <td class="text-center py-3 px-3">
+                    <span class="px-2 py-1 bg-slate-700 rounded text-xs font-semibold">${t.divisaPago}</span>
                 </td>
-                <td class="text-right py-3 px-4 font-mono">${t.monto.toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
-                <td class="text-right py-3 px-4 font-mono text-slate-300">${calcularPrecioUnitario(t.monto, t.cantidadUSDT)}</td>
-                <td class="text-right py-3 px-4">
-                    <span class="${colorPorcentaje} font-semibold">${iconoPorcentaje}${t.porcentaje > 0 ? '+' : ''}${t.porcentaje}%</span>
-                </td>
-                <td class="text-center py-3 px-4 text-slate-300">${t.fecha}</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-right py-3 px-3 font-mono text-slate-300">${t.precioMercado.toFixed(2)} DOP</td>
+                <td class="text-right py-3 px-3 font-mono text-white font-semibold">${t.tuPrecio.toFixed(2)} DOP</td>
+                <td class="text-right py-3 px-3 font-mono text-white">${t.montoTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</td>
+                <td class="text-right py-3 px-3 font-mono ${colorGanancia}">${iconoGanancia}${t.gananciaPorUSDT.toFixed(2)} DOP</td>
+                <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">${iconoGanancia}${t.gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</td>
+                <td class="text-right py-3 px-3 font-mono text-slate-300">${t.tasaCambio ? t.tasaCambio.toFixed(2) : '-'}</td>
+                <td class="text-center py-3 px-3 text-slate-300">${t.fecha}</td>
+                <td class="py-3 px-3 text-slate-300 text-xs">${t.notas || '-'}</td>
+                <td class="text-center py-3 px-3">
                     <button onclick="eliminarTransaccion(${t.id})" class="text-red-400 hover:text-red-300 transition-colors">
                         🗑️
                     </button>
@@ -196,29 +236,71 @@
     }
 
     function actualizarResumen() {
-        const totales = {};
-        
+        let totalComprados = 0;
+        let totalVendidos = 0;
+        let gananciaTotal = 0;
+        const detalles = {
+            comprasDOP: { cantidad: 0, monto: 0, ganancia: 0 },
+            comprasUSD: { cantidad: 0, monto: 0, ganancia: 0 },
+            ventasDOP: { cantidad: 0, monto: 0, ganancia: 0 },
+            ventasUSD: { cantidad: 0, monto: 0, ganancia: 0 }
+        };
+
         transacciones.forEach(t => {
-            const key = `${t.tipo}_${t.divisa}`;
-            if (!totales[key]) {
-                totales[key] = { tipo: t.tipo, divisa: t.divisa, cantidad: 0, monto: 0 };
+            if (t.tipo === 'Compra') {
+                totalComprados += t.cantidadUSDT;
+                if (t.divisaPago === 'DOP') {
+                    detalles.comprasDOP.cantidad += t.cantidadUSDT;
+                    detalles.comprasDOP.monto += t.montoTotal;
+                    detalles.comprasDOP.ganancia += t.gananciaTotal;
+                } else {
+                    detalles.comprasUSD.cantidad += t.cantidadUSDT;
+                    detalles.comprasUSD.monto += t.montoTotal;
+                    detalles.comprasUSD.ganancia += t.gananciaTotal;
+                }
+            } else {
+                totalVendidos += t.cantidadUSDT;
+                if (t.divisaPago === 'DOP') {
+                    detalles.ventasDOP.cantidad += t.cantidadUSDT;
+                    detalles.ventasDOP.monto += t.montoTotal;
+                    detalles.ventasDOP.ganancia += t.gananciaTotal;
+                } else {
+                    detalles.ventasUSD.cantidad += t.cantidadUSDT;
+                    detalles.ventasUSD.monto += t.montoTotal;
+                    detalles.ventasUSD.ganancia += t.gananciaTotal;
+                }
             }
-            totales[key].cantidad += t.cantidadUSDT;
-            totales[key].monto += t.monto;
+            gananciaTotal += t.gananciaTotal;
         });
 
-        const resumen = document.getElementById('resumenTotales');
+        document.getElementById('totalComprados').textContent = totalComprados.toLocaleString('es-DO', {minimumFractionDigits: 2});
+        document.getElementById('totalVendidos').textContent = totalVendidos.toLocaleString('es-DO', {minimumFractionDigits: 2});
+        document.getElementById('balanceUSDT').textContent = (totalComprados - totalVendidos).toLocaleString('es-DO', {minimumFractionDigits: 2});
+        document.getElementById('gananciaTotal').textContent = gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2});
+
+        const resumen = document.getElementById('resumenDetallado');
         resumen.innerHTML = '';
 
-        Object.values(totales).forEach(data => {
-            const div = document.createElement('div');
-            div.className = 'bg-white/5 rounded-xl p-4 border border-white/10';
-            div.innerHTML = `
-                <h3 class="text-emerald-400 font-semibold mb-2">${data.tipo} - ${data.divisa}</h3>
-                <p class="text-white text-lg">USDT: <span class="font-mono font-bold">${data.cantidad.toFixed(2)}</span></p>
-                <p class="text-white text-lg">Total: <span class="font-mono font-bold">${data.monto.toLocaleString('es-MX', {minimumFractionDigits: 2})} ${data.divisa}</span></p>
-            `;
-            resumen.appendChild(div);
+        const detallesArray = [
+            { titulo: 'Compras en DOP', data: detalles.comprasDOP, color: 'from-blue-500/20 to-blue-600/20 border-blue-500/30' },
+            { titulo: 'Compras en USD', data: detalles.comprasUSD, color: 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30' },
+            { titulo: 'Ventas en DOP', data: detalles.ventasDOP, color: 'from-orange-500/20 to-orange-600/20 border-orange-500/30' },
+            { titulo: 'Ventas en USD', data: detalles.ventasUSD, color: 'from-amber-500/20 to-amber-600/20 border-amber-500/30' }
+        ];
+
+        detallesArray.forEach(item => {
+            if (item.data.cantidad > 0) {
+                const div = document.createElement('div');
+                div.className = `bg-gradient-to-br ${item.color} rounded-xl p-4 border`;
+                const colorGanancia = item.data.ganancia > 0 ? 'text-green-400' : item.data.ganancia < 0 ? 'text-red-400' : 'text-slate-400';
+                div.innerHTML = `
+                    <h3 class="text-white font-semibold mb-3">${item.titulo}</h3>
+                    <p class="text-slate-200 text-sm">USDT: <span class="font-mono font-bold">${item.data.cantidad.toLocaleString('es-DO', {minimumFractionDigits: 2})}</span></p>
+                    <p class="text-slate-200 text-sm">Monto: <span class="font-mono font-bold">${item.data.monto.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</span></p>
+                    <p class="text-sm">Ganancia: <span class="font-mono font-bold ${colorGanancia}">${item.data.ganancia.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</span></p>
+                `;
+                resumen.appendChild(div);
+            }
         });
     }
 
@@ -228,9 +310,9 @@
             return;
         }
 
-        let csv = 'Tipo,Cantidad USDT,Divisa,Monto,Precio Unitario,Porcentaje,Fecha\n';
+        let csv = 'Tipo,Cantidad USDT,Pagado en,Precio Mercado,Tu Precio,Monto Total,Ganancia por USDT,Ganancia Total,Tasa USD-DOP,Fecha,Notas\n';
         transacciones.forEach(t => {
-            csv += `${t.tipo},${t.cantidadUSDT},${t.divisa},${t.monto},${calcularPrecioUnitario(t.monto, t.cantidadUSDT)},${t.porcentaje},${t.fecha}\n`;
+            csv += `${t.tipo},${t.cantidadUSDT},${t.divisaPago},${t.precioMercado},${t.tuPrecio},${t.montoTotal},${t.gananciaPorUSDT},${t.gananciaTotal},${t.tasaCambio || ''},${t.fecha},"${t.notas || ''}"\n`;
         });
 
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -252,7 +334,7 @@
         }
     }
 </script>
-```
+
 
 </body>
 </html>
