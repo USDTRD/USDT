@@ -43,10 +43,15 @@
                 <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <input type="number" id="precioMercado" placeholder="Precio Mercado (DOP)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <select id="divisaPrecios" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                    <option value="DOP">Precios en DOP</option>
+                    <option value="USD">Precios en USD</option>
+                </select>
 
-                <input type="number" id="tuPrecio" placeholder="Tu Precio (DOP)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                <input type="number" id="precioMercado" placeholder="Precio Mercado" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="number" id="tuPrecio" placeholder="Tu Precio" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
 
                 <input type="number" id="tasaCambio" placeholder="Tasa USD→DOP (opcional)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
 
@@ -76,6 +81,7 @@
                         <th class="text-left py-3 px-3 font-semibold text-emerald-400">Tipo</th>
                         <th class="text-right py-3 px-3 font-semibold text-emerald-400">USDT</th>
                         <th class="text-center py-3 px-3 font-semibold text-emerald-400">Pagado en</th>
+                        <th class="text-center py-3 px-3 font-semibold text-emerald-400">Divisa Precios</th>
                         <th class="text-right py-3 px-3 font-semibold text-emerald-400">Precio Mercado</th>
                         <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tu Precio</th>
                         <th class="text-right py-3 px-3 font-semibold text-emerald-400">Monto Total</th>
@@ -141,6 +147,7 @@
         const tipo = document.getElementById('tipo').value;
         const cantidadUSDT = parseFloat(document.getElementById('cantidadUSDT').value);
         const divisaPago = document.getElementById('divisaPago').value;
+        const divisaPrecios = document.getElementById('divisaPrecios').value;
         const precioMercado = parseFloat(document.getElementById('precioMercado').value);
         const tuPrecio = parseFloat(document.getElementById('tuPrecio').value);
         const tasaCambio = parseFloat(document.getElementById('tasaCambio').value) || null;
@@ -165,6 +172,7 @@
             tipo,
             cantidadUSDT,
             divisaPago,
+            divisaPrecios,
             precioMercado,
             tuPrecio,
             montoTotal,
@@ -215,11 +223,14 @@
                 <td class="text-center py-3 px-3">
                     <span class="px-2 py-1 bg-slate-700 rounded text-xs font-semibold">${t.divisaPago}</span>
                 </td>
-                <td class="text-right py-3 px-3 font-mono text-slate-300">${t.precioMercado.toFixed(2)} DOP</td>
-                <td class="text-right py-3 px-3 font-mono text-white font-semibold">${t.tuPrecio.toFixed(2)} DOP</td>
-                <td class="text-right py-3 px-3 font-mono text-white">${t.montoTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</td>
-                <td class="text-right py-3 px-3 font-mono ${colorGanancia}">${iconoGanancia}${t.gananciaPorUSDT.toFixed(2)} DOP</td>
-                <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">${iconoGanancia}${t.gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</td>
+                <td class="text-center py-3 px-3">
+                    <span class="px-2 py-1 bg-purple-700 rounded text-xs font-semibold">${t.divisaPrecios}</span>
+                </td>
+                <td class="text-right py-3 px-3 font-mono text-slate-300">${t.precioMercado.toFixed(2)} ${t.divisaPrecios}</td>
+                <td class="text-right py-3 px-3 font-mono text-white font-semibold">${t.tuPrecio.toFixed(2)} ${t.divisaPrecios}</td>
+                <td class="text-right py-3 px-3 font-mono text-white">${t.montoTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${t.divisaPrecios}</td>
+                <td class="text-right py-3 px-3 font-mono ${colorGanancia}">${iconoGanancia}${t.gananciaPorUSDT.toFixed(2)} ${t.divisaPrecios}</td>
+                <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">${iconoGanancia}${t.gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${t.divisaPrecios}</td>
                 <td class="text-right py-3 px-3 font-mono text-slate-300">${t.tasaCambio ? t.tasaCambio.toFixed(2) : '-'}</td>
                 <td class="text-center py-3 px-3 text-slate-300">${t.fecha}</td>
                 <td class="py-3 px-3 text-slate-300 text-xs">${t.notas || '-'}</td>
