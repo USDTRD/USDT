@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Transacciones USDT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+            <div class="flex items-center gap-3 mb-8">
+                <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-white">Registro de Transacciones USDT</h1>
+            </div>
+
+```
+        <!-- Formulario -->
+        <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
+            <h2 class="text-xl font-semibold text-white mb-4">Nueva Transacción</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                    <option value="Compra">Compra</option>
+                    <option value="Venta">Venta</option>
+                </select>
+
+                <input type="number" id="cantidadUSDT" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <select id="divisa" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                    <option value="MXN">MXN (Pesos MX)</option>
+                    <option value="USD">USD (Dólares)</option>
+                    <option value="ARS">ARS (Pesos AR)</option>
+                    <option value="DOP">DOP (Pesos DO)</option>
+                    <option value="EUR">EUR (Euros)</option>
+                </select>
+
+                <input type="number" id="monto" placeholder="Monto total" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="number" id="porcentaje" placeholder="% Ganancia/Pérdida" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+
+                <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+
+                <button onclick="agregarTransaccion()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold transition-colors">
+                    Agregar
+                </button>
+            </div>
+        </div>
+
+        <!-- Botones de gestión -->
+        <div class="mb-4 flex gap-4">
+            <button onclick="exportarDatos()" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                Exportar a CSV
+            </button>
+            <button onclick="confirmarBorrarTodo()" class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                Borrar Todo
+            </button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="overflow-x-auto mb-8">
+            <table class="w-full text-white">
+                <thead>
+                    <tr class="border-b border-white/20">
+                        <th class="text-left py-3 px-4 font-semibold text-emerald-400">Tipo</th>
+                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">USDT</th>
+                        <th class="text-left py-3 px-4 font-semibold text-emerald-400">Divisa</th>
+                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">Monto</th>
+                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">Precio Unit.</th>
+                        <th class="text-right py-3 px-4 font-semibold text-emerald-400">%</th>
+                        <th class="text-center py-3 px-4 font-semibold text-emerald-400">Fecha</th>
+                        <th class="text-center py-3 px-4 font-semibold text-emerald-400">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaTransacciones">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Resumen -->
+        <div id="resumenTotales" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+    </div>
+</div>
+
+<script>
+    let transacciones = [];
+
+    // Cargar datos al iniciar
+    window.onload = function() {
+        cargarDatos();
+        document.getElementById('fecha').valueAsDate = new Date();
+    };
+
+    function cargarDatos() {
+        const datos = localStorage.getItem('transaccionesUSDT');
+        if (datos) {
+            transacciones = JSON.parse(datos);
+            actualizarTabla();
+        }
+    }
+
+    function guardarDatos() {
+        localStorage.setItem('transaccionesUSDT', JSON.stringify(transacciones));
+    }
+
+    function agregarTransaccion() {
+        const tipo = document.getElementById('tipo').value;
+        const cantidadUSDT = parseFloat(document.getElementById('cantidadUSDT').value);
+        const divisa = document.getElementById('divisa').value;
+        const monto = parseFloat(document.getElementById('monto').value);
+        const porcentaje = parseFloat(document.getElementById('porcentaje').value) || 0;
+        const fecha = document.getElementById('fecha').value;
+
+        if (!cantidadUSDT || !monto || !fecha) {
+            alert('Por favor completa los campos obligatorios: Cantidad USDT, Monto y Fecha');
+            return;
+        }
+
+        const transaccion = {
+            id: Date.now(),
+            tipo,
+            cantidadUSDT,
+            divisa,
+            monto,
+            porcentaje,
+            fecha
+        };
+
+        transacciones.push(transaccion);
+        guardarDatos();
+        actualizarTabla();
+
+        // Limpiar formulario
+        document.getElementById('cantidadUSDT').value = '';
+        document.getElementById('monto').value = '';
+        document.getElementById('porcentaje').value = '';
+    }
+
+    function eliminarTransaccion(id) {
+        if (confirm('¿Estás seguro de eliminar esta transacción?')) {
+            transacciones = transacciones.filter(t => t.id !== id);
+            guardarDatos();
+            actualizarTabla();
+        }
+    }
+
+    function calcularPrecioUnitario(monto, cantidad) {
+        return cantidad > 0 ? (monto / cantidad).toFixed(4) : '0.0000';
+    }
+
+    function actualizarTabla() {
+        const tbody = document.getElementById('tablaTransacciones');
+        tbody.innerHTML = '';
+
+        transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(t => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
+
+            const colorTipo = t.tipo === 'Compra' ? 'bg-blue-500/20 text-blue-300' : 'bg-orange-500/20 text-orange-300';
+            const colorPorcentaje = t.porcentaje > 0 ? 'text-green-400' : t.porcentaje < 0 ? 'text-red-400' : 'text-slate-400';
+            const iconoPorcentaje = t.porcentaje > 0 ? '↑' : t.porcentaje < 0 ? '↓' : '';
+
+            tr.innerHTML = `
+                <td class="py-3 px-4">
+                    <span class="${colorTipo} px-3 py-1 rounded-full text-sm font-medium">${t.tipo}</span>
+                </td>
+                <td class="text-right py-3 px-4 font-mono">${t.cantidadUSDT.toFixed(2)}</td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-1 bg-slate-700 rounded text-sm">${t.divisa}</span>
+                </td>
+                <td class="text-right py-3 px-4 font-mono">${t.monto.toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                <td class="text-right py-3 px-4 font-mono text-slate-300">${calcularPrecioUnitario(t.monto, t.cantidadUSDT)}</td>
+                <td class="text-right py-3 px-4">
+                    <span class="${colorPorcentaje} font-semibold">${iconoPorcentaje}${t.porcentaje > 0 ? '+' : ''}${t.porcentaje}%</span>
+                </td>
+                <td class="text-center py-3 px-4 text-slate-300">${t.fecha}</td>
+                <td class="text-center py-3 px-4">
+                    <button onclick="eliminarTransaccion(${t.id})" class="text-red-400 hover:text-red-300 transition-colors">
+                        🗑️
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        actualizarResumen();
+    }
+
+    function actualizarResumen() {
+        const totales = {};
+        
+        transacciones.forEach(t => {
+            const key = `${t.tipo}_${t.divisa}`;
+            if (!totales[key]) {
+                totales[key] = { tipo: t.tipo, divisa: t.divisa, cantidad: 0, monto: 0 };
+            }
+            totales[key].cantidad += t.cantidadUSDT;
+            totales[key].monto += t.monto;
+        });
+
+        const resumen = document.getElementById('resumenTotales');
+        resumen.innerHTML = '';
+
+        Object.values(totales).forEach(data => {
+            const div = document.createElement('div');
+            div.className = 'bg-white/5 rounded-xl p-4 border border-white/10';
+            div.innerHTML = `
+                <h3 class="text-emerald-400 font-semibold mb-2">${data.tipo} - ${data.divisa}</h3>
+                <p class="text-white text-lg">USDT: <span class="font-mono font-bold">${data.cantidad.toFixed(2)}</span></p>
+                <p class="text-white text-lg">Total: <span class="font-mono font-bold">${data.monto.toLocaleString('es-MX', {minimumFractionDigits: 2})} ${data.divisa}</span></p>
+            `;
+            resumen.appendChild(div);
+        });
+    }
+
+    function exportarDatos() {
+        if (transacciones.length === 0) {
+            alert('No hay datos para exportar');
+            return;
+        }
+
+        let csv = 'Tipo,Cantidad USDT,Divisa,Monto,Precio Unitario,Porcentaje,Fecha\n';
+        transacciones.forEach(t => {
+            csv += `${t.tipo},${t.cantidadUSDT},${t.divisa},${t.monto},${calcularPrecioUnitario(t.monto, t.cantidadUSDT)},${t.porcentaje},${t.fecha}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transacciones_usdt_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    }
+
+    function confirmarBorrarTodo() {
+        if (confirm('¿Estás SEGURO de que quieres borrar TODAS las transacciones? Esta acción no se puede deshacer.')) {
+            if (confirm('Última confirmación: ¿Borrar todo?')) {
+                transacciones = [];
+                guardarDatos();
+                actualizarTabla();
+                alert('Todas las transacciones han sido eliminadas');
+            }
+        }
+    }
+</script>
+```
+
+</body>
+</html>
