@@ -12,8 +12,9 @@
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
-    <title>Registro de Transacciones USDT</title>
+    <title>USDT Tracker Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
@@ -37,150 +38,273 @@
             from { transform: translateX(-50%) translateY(100px); opacity: 0; }
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
+        .tab-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .tab-inactive {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
+        }
     </style>
 </head>
 <body class="p-6">
-    <!-- Prompt de instalación -->
     <div id="installPrompt" class="install-prompt">
         <div class="flex items-center gap-3">
-            <span class="text-lg">📱 ¡Instala la app en tu teléfono!</span>
+            <span class="text-lg">📱 ¡Instala la app en tu dispositivo!</span>
             <button onclick="instalarApp()" class="bg-white text-emerald-600 px-4 py-2 rounded-lg font-semibold">
                 Instalar
             </button>
-            <button onclick="cerrarPrompt()" class="text-white/80 hover:text-white">
-                ✕
-            </button>
+            <button onclick="cerrarPrompt()" class="text-white/80 hover:text-white">✕</button>
         </div>
     </div>
 
-    <div class="max-w-[1600px] mx-auto">
+    <div class="max-w-[1800px] mx-auto">
         <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+            <!-- Header -->
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-3">
                     <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h1 class="text-4xl font-bold text-white">USDT Tracker</h1>
+                    <h1 class="text-4xl font-bold text-white">USDT Tracker Pro</h1>
                 </div>
-                <button id="installBtn" onclick="instalarApp()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors hidden">
-                    📱 Instalar App
-                </button>
-            </div>
-
-            <!-- Formulario -->
-            <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
-                <h2 class="text-xl font-semibold text-white mb-4">Nueva Transacción</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
-                        <option value="Compra">Compra</option>
-                        <option value="Venta">Venta</option>
-                    </select>
-
-                    <input type="number" id="cantidadUSDT" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                    <select id="divisaPago" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
-                        <option value="DOP">Pagado en DOP</option>
-                        <option value="USD">Pagado en USD</option>
-                    </select>
-
-                    <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                    <select id="divisaPrecios" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
-                        <option value="DOP">Precios en DOP</option>
-                        <option value="USD">Precios en USD</option>
-                    </select>
-
-                    <input type="number" id="precioMercado" placeholder="Precio Mercado" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                    <input type="number" id="tuPrecio" placeholder="Tu Precio" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                    <input type="number" id="tasaCambio" placeholder="Tasa USD→DOP (opcional)" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                    <input type="text" id="notas" placeholder="Notas (opcional)" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
-
-                    <button onclick="agregarTransaccion()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold transition-colors">
-                        Agregar
+                <div class="flex gap-3">
+                    <button onclick="toggleCalculadora()" class="bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                        🧮 Calculadora
+                    </button>
+                    <button id="installBtn" onclick="instalarApp()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors hidden">
+                        📱 Instalar
                     </button>
                 </div>
             </div>
 
-            <!-- Botones de gestión -->
-            <div class="mb-4 flex gap-4 flex-wrap">
-                <button onclick="exportarDatos()" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
-                    📊 Exportar CSV
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="cambiarTab('recogidas')" id="tabRecogidas" class="tab-active px-6 py-3 rounded-lg font-semibold transition-all">
+                    💰 Recogidas Betcris
                 </button>
-                <button onclick="confirmarBorrarTodo()" class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
-                    🗑️ Borrar Todo
+                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-lg font-semibold transition-all">
+                    📊 Transacciones USDT
                 </button>
-                <button onclick="compartirEstadisticas()" class="bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
-                    📤 Compartir
+                <button onclick="cambiarTab('graficas')" id="tabGraficas" class="tab-inactive px-6 py-3 rounded-lg font-semibold transition-all">
+                    📈 Gráficas
                 </button>
             </div>
 
-            <!-- Tabla -->
-            <div class="overflow-x-auto mb-8">
-                <table class="w-full text-white text-sm">
-                    <thead>
-                        <tr class="border-b border-white/20">
-                            <th class="text-left py-3 px-3 font-semibold text-emerald-400">Tipo</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">USDT</th>
-                            <th class="text-center py-3 px-3 font-semibold text-emerald-400">Pagado en</th>
-                            <th class="text-center py-3 px-3 font-semibold text-emerald-400">Divisa Precios</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Precio Mercado</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tu Precio</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Monto Total</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia/USDT</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia Total</th>
-                            <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tasa USD→DOP</th>
-                            <th class="text-center py-3 px-3 font-semibold text-emerald-400">Fecha</th>
-                            <th class="text-left py-3 px-3 font-semibold text-emerald-400">Notas</th>
-                            <th class="text-center py-3 px-3 font-semibold text-emerald-400">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaTransacciones">
-                    </tbody>
-                </table>
+            <!-- Calculadora Flotante -->
+            <div id="calculadora" class="hidden fixed top-20 right-6 bg-slate-800 rounded-xl p-6 shadow-2xl border border-emerald-500/30 z-50 w-80">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-white font-bold text-lg">🧮 Calculadora Rápida</h3>
+                    <button onclick="toggleCalculadora()" class="text-white/60 hover:text-white">✕</button>
+                </div>
+                <input type="number" id="calcInput1" placeholder="Número 1" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 mb-2">
+                <select id="calcOperacion" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 mb-2">
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                    <option value="*">×</option>
+                    <option value="/">÷</option>
+                </select>
+                <input type="number" id="calcInput2" placeholder="Número 2" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 mb-3">
+                <button onclick="calcular()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg py-2 font-semibold mb-2">
+                    Calcular
+                </button>
+                <div id="calcResultado" class="text-center text-2xl font-bold text-emerald-400"></div>
             </div>
 
-            <!-- Resumen -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
-                    <h3 class="text-emerald-300 font-semibold mb-2 text-lg">Total USDT Comprados</h3>
-                    <p class="text-white text-3xl font-bold" id="totalComprados">0</p>
+            <!-- SECCIÓN RECOGIDAS -->
+            <div id="seccionRecogidas">
+                <!-- Dashboard Liquidación -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-xl p-6 border border-yellow-500/30">
+                        <h3 class="text-yellow-300 font-semibold mb-2 text-lg">💵 Total a Liquidar (USDT)</h3>
+                        <p class="text-white text-3xl font-bold" id="totalALiquidar">0.00</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
+                        <h3 class="text-emerald-300 font-semibold mb-2 text-lg">✅ USDT Comprados</h3>
+                        <p class="text-white text-3xl font-bold" id="totalCompradosLiq">0.00</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl p-6 border border-red-500/30">
+                        <h3 class="text-red-300 font-semibold mb-2 text-lg">⏳ Pendiente Liquidar</h3>
+                        <p class="text-white text-3xl font-bold" id="pendienteLiquidar">0.00</p>
+                    </div>
                 </div>
-                <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
-                    <h3 class="text-orange-300 font-semibold mb-2 text-lg">Total USDT Vendidos</h3>
-                    <p class="text-white text-3xl font-bold" id="totalVendidos">0</p>
+
+                <!-- Formulario Recogida -->
+                <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
+                    <h2 class="text-xl font-semibold text-white mb-4">💰 Nueva Recogida - Betcris</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <input type="date" id="fechaRecogida" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                        <input type="number" id="montoDOP" placeholder="Monto DOP" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="number" id="montoUSD" placeholder="Monto USD" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="number" id="tasaDia" placeholder="Tasa DOP→USD" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <button onclick="agregarRecogida()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold transition-colors">
+                            Agregar Recogida
+                        </button>
+                    </div>
+                    <div id="previsualizacion" class="mt-4 bg-slate-800/50 rounded-lg p-4 hidden">
+                        <h3 class="text-white font-semibold mb-2">Vista Previa del Cálculo:</h3>
+                        <p class="text-slate-300">DOP convertidos a USD: <span id="prevDOPaUSD" class="text-emerald-400 font-bold">0.00</span> USD</p>
+                        <p class="text-slate-300">Total en USD: <span id="prevTotalUSD" class="text-emerald-400 font-bold">0.00</span> USD</p>
+                        <p class="text-white text-lg mt-2">USDT a liquidar: <span id="prevUSDT" class="text-yellow-400 font-bold text-xl">0.00</span> USDT</p>
+                    </div>
                 </div>
-                <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
-                    <h3 class="text-blue-300 font-semibold mb-2 text-lg">Balance USDT</h3>
-                    <p class="text-white text-3xl font-bold" id="balanceUSDT">0</p>
-                </div>
-                <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-6 border border-purple-500/30">
-                    <h3 class="text-purple-300 font-semibold mb-2 text-lg">Ganancia Total (DOP)</h3>
-                    <p class="text-white text-3xl font-bold" id="gananciaTotal">0</p>
+
+                <!-- Tabla Recogidas -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full text-white text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-3 px-3 font-semibold text-emerald-400">Fecha</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">DOP</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">USD</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tasa</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">DOP→USD</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Total USD</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">USDT a Liquidar</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Estado</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaRecogidas"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <div id="resumenDetallado" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- SECCIÓN TRANSACCIONES -->
+            <div id="seccionTransacciones" class="hidden">
+                <!-- Buscador y Filtros -->
+                <div class="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="buscar" placeholder="🔍 Buscar..." onkeyup="filtrarTransacciones()" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="date" id="fechaDesde" onchange="filtrarTransacciones()" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                        <input type="date" id="fechaHasta" onchange="filtrarTransacciones()" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                        <select id="filtroTipo" onchange="filtrarTransacciones()" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                            <option value="">Todos los tipos</option>
+                            <option value="Compra">Compras</option>
+                            <option value="Venta">Ventas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Formulario Transacción -->
+                <div class="bg-white/5 rounded-xl p-6 mb-8 border border-white/10">
+                    <h2 class="text-xl font-semibold text-white mb-4">📊 Nueva Transacción USDT</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                            <option value="Compra">Compra</option>
+                            <option value="Venta">Venta</option>
+                        </select>
+                        <input type="number" id="cantidadUSDT" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <select id="divisaPago" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                            <option value="DOP">Pagado en DOP</option>
+                            <option value="USD">Pagado en USD</option>
+                        </select>
+                        <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <select id="divisaPrecios" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none">
+                            <option value="DOP">Precios en DOP</option>
+                            <option value="USD">Precios en USD</option>
+                        </select>
+                        <input type="number" id="precioMercado" placeholder="Precio Mercado" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="number" id="tuPrecio" placeholder="Tu Precio" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="number" id="tasaCambio" placeholder="Tasa USD→DOP" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <input type="text" id="notas" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600 focus:border-emerald-400 focus:outline-none placeholder-slate-400">
+                        <button onclick="agregarTransaccion()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold transition-colors">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botones de gestión -->
+                <div class="mb-4 flex gap-4 flex-wrap">
+                    <button onclick="exportarDatos()" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                        📊 Exportar CSV
+                    </button>
+                    <button onclick="confirmarBorrarTodo()" class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                        🗑️ Borrar Todo
+                    </button>
+                    <button onclick="compartirEstadisticas()" class="bg-purple-500 hover:bg-purple-600 text-white rounded-lg px-4 py-2 font-semibold transition-colors">
+                        📤 Compartir
+                    </button>
+                </div>
+
+                <!-- Resumen -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
+                        <h3 class="text-emerald-300 font-semibold mb-2 text-lg">Total USDT Comprados</h3>
+                        <p class="text-white text-3xl font-bold" id="totalComprados">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
+                        <h3 class="text-orange-300 font-semibold mb-2 text-lg">Total USDT Vendidos</h3>
+                        <p class="text-white text-3xl font-bold" id="totalVendidos">0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
+                        <h3 class="text-blue-300 font-semibold mb-2 text-lg">Balance USDT</h3>
+                        <p class="text-white text-3xl font-bold" id="balanceUSDT">0</p>
+                    </div>
+                </div>
+
+                <div id="resumenDetallado" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+
+                <!-- Tabla Transacciones -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-3 px-3 font-semibold text-emerald-400">Tipo</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">USDT</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Pagado en</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Divisa Precios</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Precio Mercado</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tu Precio</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Monto Total</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia/USDT</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Ganancia Total</th>
+                                <th class="text-right py-3 px-3 font-semibold text-emerald-400">Tasa</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Fecha</th>
+                                <th class="text-left py-3 px-3 font-semibold text-emerald-400">Notas</th>
+                                <th class="text-center py-3 px-3 font-semibold text-emerald-400">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaTransacciones"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECCIÓN GRÁFICAS -->
+            <div id="seccionGraficas" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 class="text-white font-semibold mb-4 text-lg">📊 Ganancias por Mes</h3>
+                        <canvas id="graficoGanancias"></canvas>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 class="text-white font-semibold mb-4 text-lg">💰 Compras vs Ventas</h3>
+                        <canvas id="graficoComprasVentas"></canvas>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                        <h3 class="text-white font-semibold mb-4 text-lg">📈 Volumen por Divisa</h3>
+                        <canvas id="graficoVolumen"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         let transacciones = [];
+        let recogidas = [];
         let deferredPrompt;
+        let transaccionesFiltradas = [];
 
-        // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker registrado'))
-                .catch(err => console.log('Error al registrar SW:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('Error SW:', err));
         }
 
-        // Detectar si la app puede instalarse
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -194,9 +318,6 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('App instalada');
-                    }
                     deferredPrompt = null;
                     document.getElementById('installPrompt').style.display = 'none';
                     document.getElementById('installBtn').classList.add('hidden');
@@ -208,21 +329,195 @@
             document.getElementById('installPrompt').style.display = 'none';
         }
 
+        function toggleCalculadora() {
+            const calc = document.getElementById('calculadora');
+            calc.classList.toggle('hidden');
+        }
+
+        function calcular() {
+            const num1 = parseFloat(document.getElementById('calcInput1').value) || 0;
+            const num2 = parseFloat(document.getElementById('calcInput2').value) || 0;
+            const op = document.getElementById('calcOperacion').value;
+            let resultado = 0;
+            
+            switch(op) {
+                case '+': resultado = num1 + num2; break;
+                case '-': resultado = num1 - num2; break;
+                case '*': resultado = num1 * num2; break;
+                case '/': resultado = num2 !== 0 ? num1 / num2 : 'Error'; break;
+            }
+            
+            document.getElementById('calcResultado').textContent = typeof resultado === 'number' ? resultado.toFixed(2) : resultado;
+        }
+
+        function cambiarTab(tab) {
+            document.getElementById('tabRecogidas').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all';
+            document.getElementById('tabTransacciones').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all';
+            document.getElementById('tabGraficas').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all';
+            
+            document.getElementById('seccionRecogidas').classList.add('hidden');
+            document.getElementById('seccionTransacciones').classList.add('hidden');
+            document.getElementById('seccionGraficas').classList.add('hidden');
+            
+            if (tab === 'recogidas') {
+                document.getElementById('tabRecogidas').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all';
+                document.getElementById('seccionRecogidas').classList.remove('hidden');
+            } else if (tab === 'transacciones') {
+                document.getElementById('tabTransacciones').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all';
+                document.getElementById('seccionTransacciones').classList.remove('hidden');
+            } else if (tab === 'graficas') {
+                document.getElementById('tabGraficas').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all';
+                document.getElementById('seccionGraficas').classList.remove('hidden');
+                actualizarGraficas();
+            }
+        }
+
         window.onload = function() {
             cargarDatos();
             document.getElementById('fecha').valueAsDate = new Date();
+            document.getElementById('fechaRecogida').valueAsDate = new Date();
+            
+            // Preview en tiempo real para recogidas
+            ['montoDOP', 'montoUSD', 'tasaDia'].forEach(id => {
+                document.getElementById(id).addEventListener('input', actualizarPreview);
+            });
         };
 
+        function actualizarPreview() {
+            const dop = parseFloat(document.getElementById('montoDOP').value) || 0;
+            const usd = parseFloat(document.getElementById('montoUSD').value) || 0;
+            const tasa = parseFloat(document.getElementById('tasaDia').value) || 0;
+            
+            if (dop > 0 || usd > 0) {
+                const dopAUsd = tasa > 0 ? dop / tasa : 0;
+                const totalUsd = dopAUsd + usd;
+                const usdtLiquidar = totalUsd / 1.03;
+                
+                document.getElementById('prevDOPaUSD').textContent = dopAUsd.toFixed(2);
+                document.getElementById('prevTotalUSD').textContent = totalUsd.toFixed(2);
+                document.getElementById('prevUSDT').textContent = usdtLiquidar.toFixed(2);
+                document.getElementById('previsualizacion').classList.remove('hidden');
+            } else {
+                document.getElementById('previsualizacion').classList.add('hidden');
+            }
+        }
+
         function cargarDatos() {
-            const datos = localStorage.getItem('transaccionesUSDT');
-            if (datos) {
-                transacciones = JSON.parse(datos);
-                actualizarTabla();
+            const datosT = localStorage.getItem('transaccionesUSDT');
+            const datosR = localStorage.getItem('recogidasBetcris');
+            if (datosT) {
+                transacciones = JSON.parse(datosT);
+                transaccionesFiltradas = [...transacciones];
+                actualizarTablaTransacciones();
+            }
+            if (datosR) {
+                recogidas = JSON.parse(datosR);
+                actualizarTablaRecogidas();
             }
         }
 
         function guardarDatos() {
             localStorage.setItem('transaccionesUSDT', JSON.stringify(transacciones));
+            localStorage.setItem('recogidasBetcris', JSON.stringify(recogidas));
+        }
+
+        function agregarRecogida() {
+            const fecha = document.getElementById('fechaRecogida').value;
+            const dop = parseFloat(document.getElementById('montoDOP').value) || 0;
+            const usd = parseFloat(document.getElementById('montoUSD').value) || 0;
+            const tasa = parseFloat(document.getElementById('tasaDia').value) || 0;
+
+            if (!fecha || (dop === 0 && usd === 0)) {
+                alert('Por favor completa la fecha y al menos un monto (DOP o USD)');
+                return;
+            }
+
+            if (dop > 0 && tasa === 0) {
+                alert('Si ingresas DOP, debes especificar la tasa de conversión');
+                return;
+            }
+
+            const dopAUsd = tasa > 0 ? dop / tasa : 0;
+            const totalUsd = dopAUsd + usd;
+            const usdtLiquidar = totalUsd / 1.03;
+
+            const recogida = {
+                id: Date.now(),
+                fecha,
+                dop,
+                usd,
+                tasa,
+                dopAUsd,
+                totalUsd,
+                usdtLiquidar,
+                completada: false
+            };
+
+            recogidas.push(recogida);
+            guardarDatos();
+            actualizarTablaRecogidas();
+
+            document.getElementById('montoDOP').value = '';
+            document.getElementById('montoUSD').value = '';
+            document.getElementById('tasaDia').value = '';
+            document.getElementById('previsualizacion').classList.add('hidden');
+        }
+
+        function toggleEstadoRecogida(id) {
+            const recogida = recogidas.find(r => r.id === id);
+            if (recogida) {
+                recogida.completada = !recogida.completada;
+                guardarDatos();
+                actualizarTablaRecogidas();
+            }
+        }
+
+        function eliminarRecogida(id) {
+            if (confirm('¿Eliminar esta recogida?')) {
+                recogidas = recogidas.filter(r => r.id !== id);
+                guardarDatos();
+                actualizarTablaRecogidas();
+            }
+        }
+
+        function actualizarTablaRecogidas() {
+            const tbody = document.getElementById('tablaRecogidas');
+            tbody.innerHTML = '';
+
+            let totalALiquidar = 0;
+            let totalComprados = transacciones.filter(t => t.tipo === 'Compra').reduce((sum, t) => sum + t.cantidadUSDT, 0);
+
+            recogidas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(r => {
+                totalALiquidar += r.completada ? 0 : r.usdtLiquidar;
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-slate-300">${r.fecha}</td>
+                    <td class="text-right py-3 px-3 font-mono text-white">${r.dop.toLocaleString('es-DO', {minimumFractionDigits: 2})}</td>
+                    <td class="text-right py-3 px-3 font-mono text-white">${r.usd.toLocaleString('es-DO', {minimumFractionDigits: 2})}</td>
+                    <td class="text-right py-3 px-3 font-mono text-slate-300">${r.tasa > 0 ? r.tasa.toFixed(2) : '-'}</td>
+                    <td class="text-right py-3 px-3 font-mono text-emerald-400">${r.dopAUsd.toFixed(2)}</td>
+                    <td class="text-right py-3 px-3 font-mono text-emerald-400 font-semibold">${r.totalUsd.toFixed(2)}</td>
+                    <td class="text-right py-3 px-3 font-mono text-yellow-400 font-bold text-base">${r.usdtLiquidar.toFixed(2)}</td>
+                    <td class="text-center py-3 px-3">
+                        <button onclick="toggleEstadoRecogida(${r.id})" class="px-3 py-1 rounded-full text-xs font-semibold ${r.completada ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}">
+                            ${r.completada ? '✓ Completada' : '⏳ Pendiente'}
+                        </button>
+                    </td>
+                    <td class="text-center py-3 px-3">
+                        <button onclick="eliminarRecogida(${r.id})" class="text-red-400 hover:text-red-300 transition-colors">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const pendiente = totalALiquidar - totalComprados;
+
+            document.getElementById('totalALiquidar').textContent = totalALiquidar.toFixed(2);
+            document.getElementById('totalCompradosLiq').textContent = totalComprados.toFixed(2);
+            document.getElementById('pendienteLiquidar').textContent = pendiente.toFixed(2);
         }
 
         function agregarTransaccion() {
@@ -237,14 +532,11 @@
             const fecha = document.getElementById('fecha').value;
 
             if (!cantidadUSDT || !precioMercado || !tuPrecio || !fecha) {
-                alert('Por favor completa los campos obligatorios: Cantidad USDT, Precio Mercado, Tu Precio y Fecha');
+                alert('Completa: Cantidad USDT, Precio Mercado, Tu Precio y Fecha');
                 return;
             }
 
-            const gananciaPorUSDT = tipo === 'Compra' 
-                ? precioMercado - tuPrecio
-                : tuPrecio - precioMercado;
-
+            const gananciaPorUSDT = tipo === 'Compra' ? precioMercado - tuPrecio : tuPrecio - precioMercado;
             const gananciaTotal = gananciaPorUSDT * cantidadUSDT;
             const montoTotal = tuPrecio * cantidadUSDT;
 
@@ -266,94 +558,92 @@
 
             transacciones.push(transaccion);
             guardarDatos();
-            actualizarTabla();
+            transaccionesFiltradas = [...transacciones];
+            actualizarTablaTransacciones();
+            actualizarTablaRecogidas();
 
-            document.getElementById('cantidadUSDT').value = '';
-            document.getElementById('precioMercado').value = '';
-            document.getElementById('tuPrecio').value = '';
-            document.getElementById('tasaCambio').value = '';
-            document.getElementById('notas').value = '';
+            ['cantidadUSDT', 'precioMercado', 'tuPrecio', 'tasaCambio', 'notas'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
         }
 
         function eliminarTransaccion(id) {
-            if (confirm('¿Estás seguro de eliminar esta transacción?')) {
+            if (confirm('¿Eliminar esta transacción?')) {
                 transacciones = transacciones.filter(t => t.id !== id);
                 guardarDatos();
-                actualizarTabla();
+                transaccionesFiltradas = [...transacciones];
+                actualizarTablaTransacciones();
+                actualizarTablaRecogidas();
             }
         }
 
         function editarTransaccion(id) {
-            const transaccion = transacciones.find(t => t.id === id);
-            if (!transaccion) return;
+            const t = transacciones.find(x => x.id === id);
+            if (!t) return;
 
-            document.getElementById('tipo').value = transaccion.tipo;
-            document.getElementById('cantidadUSDT').value = transaccion.cantidadUSDT;
-            document.getElementById('divisaPago').value = transaccion.divisaPago;
-            document.getElementById('divisaPrecios').value = transaccion.divisaPrecios;
-            document.getElementById('precioMercado').value = transaccion.precioMercado;
-            document.getElementById('tuPrecio').value = transaccion.tuPrecio;
-            document.getElementById('tasaCambio').value = transaccion.tasaCambio || '';
-            document.getElementById('notas').value = transaccion.notas || '';
-            document.getElementById('fecha').value = transaccion.fecha;
+            document.getElementById('tipo').value = t.tipo;
+            document.getElementById('cantidadUSDT').value = t.cantidadUSDT;
+            document.getElementById('divisaPago').value = t.divisaPago;
+            document.getElementById('divisaPrecios').value = t.divisaPrecios;
+            document.getElementById('precioMercado').value = t.precioMercado;
+            document.getElementById('tuPrecio').value = t.tuPrecio;
+            document.getElementById('tasaCambio').value = t.tasaCambio || '';
+            document.getElementById('notas').value = t.notas || '';
+            document.getElementById('fecha').value = t.fecha;
 
-            transacciones = transacciones.filter(t => t.id !== id);
+            transacciones = transacciones.filter(x => x.id !== id);
             guardarDatos();
-            actualizarTabla();
-
+            transaccionesFiltradas = [...transacciones];
+            actualizarTablaTransacciones();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            const btnAgregar = document.querySelector('button[onclick="agregarTransaccion()"]');
-            btnAgregar.textContent = 'Actualizar';
-            btnAgregar.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-            btnAgregar.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-            
-            setTimeout(() => {
-                btnAgregar.textContent = 'Agregar';
-                btnAgregar.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                btnAgregar.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
-            }, 10000);
         }
 
-        function actualizarTabla() {
+        function filtrarTransacciones() {
+            const buscar = document.getElementById('buscar').value.toLowerCase();
+            const desde = document.getElementById('fechaDesde').value;
+            const hasta = document.getElementById('fechaHasta').value;
+            const tipo = document.getElementById('filtroTipo').value;
+
+            transaccionesFiltradas = transacciones.filter(t => {
+                const matchBuscar = !buscar || t.notas?.toLowerCase().includes(buscar);
+                const matchDesde = !desde || t.fecha >= desde;
+                const matchHasta = !hasta || t.fecha <= hasta;
+                const matchTipo = !tipo || t.tipo === tipo;
+                return matchBuscar && matchDesde && matchHasta && matchTipo;
+            });
+
+            actualizarTablaTransacciones();
+        }
+
+        function actualizarTablaTransacciones() {
             const tbody = document.getElementById('tablaTransacciones');
             tbody.innerHTML = '';
 
-            transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(t => {
+            transaccionesFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(t => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
 
                 const colorTipo = t.tipo === 'Compra' ? 'bg-blue-500/20 text-blue-300' : 'bg-orange-500/20 text-orange-300';
                 const colorGanancia = t.gananciaTotal > 0 ? 'text-green-400' : t.gananciaTotal < 0 ? 'text-red-400' : 'text-slate-400';
-                const iconoGanancia = t.gananciaTotal > 0 ? '↑' : t.gananciaTotal < 0 ? '↓' : '';
+                const icono = t.gananciaTotal > 0 ? '↑' : t.gananciaTotal < 0 ? '↓' : '';
 
                 tr.innerHTML = `
-                    <td class="py-3 px-3">
-                        <span class="${colorTipo} px-3 py-1 rounded-full text-xs font-medium">${t.tipo}</span>
-                    </td>
+                    <td class="py-3 px-3"><span class="${colorTipo} px-3 py-1 rounded-full text-xs font-medium">${t.tipo}</span></td>
                     <td class="text-right py-3 px-3 font-mono font-semibold">${t.cantidadUSDT.toLocaleString('es-DO', {minimumFractionDigits: 2})}</td>
-                    <td class="text-center py-3 px-3">
-                        <span class="px-2 py-1 bg-slate-700 rounded text-xs font-semibold">${t.divisaPago}</span>
-                    </td>
-                    <td class="text-center py-3 px-3">
-                        <span class="px-2 py-1 bg-purple-700 rounded text-xs font-semibold">${t.divisaPrecios}</span>
-                    </td>
+                    <td class="text-center py-3 px-3"><span class="px-2 py-1 bg-slate-700 rounded text-xs font-semibold">${t.divisaPago}</span></td>
+                    <td class="text-center py-3 px-3"><span class="px-2 py-1 bg-purple-700 rounded text-xs font-semibold">${t.divisaPrecios}</span></td>
                     <td class="text-right py-3 px-3 font-mono text-slate-300">${t.precioMercado.toFixed(2)} ${t.divisaPrecios}</td>
                     <td class="text-right py-3 px-3 font-mono text-white font-semibold">${t.tuPrecio.toFixed(2)} ${t.divisaPrecios}</td>
                     <td class="text-right py-3 px-3 font-mono text-white">${t.montoTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${t.divisaPrecios}</td>
-                    <td class="text-right py-3 px-3 font-mono ${colorGanancia}">${iconoGanancia}${t.gananciaPorUSDT.toFixed(2)} ${t.divisaPrecios}</td>
-                    <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">${iconoGanancia}${t.gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${t.divisaPrecios}</td>
+                    <td class="text-right py-3 px-3 font-mono ${colorGanancia}">${icono}${t.gananciaPorUSDT.toFixed(2)} ${t.divisaPrecios}</td>
+                    <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">${icono}${t.gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${t.divisaPrecios}</td>
                     <td class="text-right py-3 px-3 font-mono text-slate-300">${t.tasaCambio ? t.tasaCambio.toFixed(2) : '-'}</td>
                     <td class="text-center py-3 px-3 text-slate-300">${t.fecha}</td>
                     <td class="py-3 px-3 text-slate-300 text-xs">${t.notas || '-'}</td>
                     <td class="text-center py-3 px-3">
                         <div class="flex gap-2 justify-center">
-                            <button onclick="editarTransaccion(${t.id})" class="text-blue-400 hover:text-blue-300 transition-colors" title="Editar">
-                                ✏️
-                            </button>
-                            <button onclick="eliminarTransaccion(${t.id})" class="text-red-400 hover:text-red-300 transition-colors" title="Eliminar">
-                                🗑️
-                            </button>
+                            <button onclick="editarTransaccion(${t.id})" class="text-blue-400 hover:text-blue-300">✏️</button>
+                            <button onclick="eliminarTransaccion(${t.id})" class="text-red-400 hover:text-red-300">🗑️</button>
                         </div>
                     </td>
                 `;
@@ -364,9 +654,7 @@
         }
 
         function actualizarResumen() {
-            let totalComprados = 0;
-            let totalVendidos = 0;
-            let gananciaTotal = 0;
+            let totalComprados = 0, totalVendidos = 0;
             const detalles = {
                 comprasDOP: { cantidad: 0, monto: 0, ganancia: 0 },
                 comprasUSD: { cantidad: 0, monto: 0, ganancia: 0 },
@@ -377,57 +665,125 @@
             transacciones.forEach(t => {
                 if (t.tipo === 'Compra') {
                     totalComprados += t.cantidadUSDT;
-                    if (t.divisaPago === 'DOP') {
-                        detalles.comprasDOP.cantidad += t.cantidadUSDT;
-                        detalles.comprasDOP.monto += t.montoTotal;
-                        detalles.comprasDOP.ganancia += t.gananciaTotal;
-                    } else {
-                        detalles.comprasUSD.cantidad += t.cantidadUSDT;
-                        detalles.comprasUSD.monto += t.montoTotal;
-                        detalles.comprasUSD.ganancia += t.gananciaTotal;
-                    }
+                    const key = t.divisaPrecios === 'DOP' ? 'comprasDOP' : 'comprasUSD';
+                    detalles[key].cantidad += t.cantidadUSDT;
+                    detalles[key].monto += t.montoTotal;
+                    detalles[key].ganancia += t.gananciaTotal;
                 } else {
                     totalVendidos += t.cantidadUSDT;
-                    if (t.divisaPago === 'DOP') {
-                        detalles.ventasDOP.cantidad += t.cantidadUSDT;
-                        detalles.ventasDOP.monto += t.montoTotal;
-                        detalles.ventasDOP.ganancia += t.gananciaTotal;
-                    } else {
-                        detalles.ventasUSD.cantidad += t.cantidadUSDT;
-                        detalles.ventasUSD.monto += t.montoTotal;
-                        detalles.ventasUSD.ganancia += t.gananciaTotal;
-                    }
+                    const key = t.divisaPrecios === 'DOP' ? 'ventasDOP' : 'ventasUSD';
+                    detalles[key].cantidad += t.cantidadUSDT;
+                    detalles[key].monto += t.montoTotal;
+                    detalles[key].ganancia += t.gananciaTotal;
                 }
-                gananciaTotal += t.gananciaTotal;
             });
 
             document.getElementById('totalComprados').textContent = totalComprados.toLocaleString('es-DO', {minimumFractionDigits: 2});
             document.getElementById('totalVendidos').textContent = totalVendidos.toLocaleString('es-DO', {minimumFractionDigits: 2});
             document.getElementById('balanceUSDT').textContent = (totalComprados - totalVendidos).toLocaleString('es-DO', {minimumFractionDigits: 2});
-            document.getElementById('gananciaTotal').textContent = gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2});
 
             const resumen = document.getElementById('resumenDetallado');
             resumen.innerHTML = '';
 
-            const detallesArray = [
-                { titulo: 'Compras en DOP', data: detalles.comprasDOP, color: 'from-blue-500/20 to-blue-600/20 border-blue-500/30' },
-                { titulo: 'Compras en USD', data: detalles.comprasUSD, color: 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30' },
-                { titulo: 'Ventas en DOP', data: detalles.ventasDOP, color: 'from-orange-500/20 to-orange-600/20 border-orange-500/30' },
-                { titulo: 'Ventas en USD', data: detalles.ventasUSD, color: 'from-amber-500/20 to-amber-600/20 border-amber-500/30' }
+            const items = [
+                { titulo: 'Compras en DOP', data: detalles.comprasDOP, divisa: 'DOP', color: 'from-blue-500/20 to-blue-600/20 border-blue-500/30' },
+                { titulo: 'Compras en USD', data: detalles.comprasUSD, divisa: 'USD', color: 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30' },
+                { titulo: 'Ventas en DOP', data: detalles.ventasDOP, divisa: 'DOP', color: 'from-orange-500/20 to-orange-600/20 border-orange-500/30' },
+                { titulo: 'Ventas en USD', data: detalles.ventasUSD, divisa: 'USD', color: 'from-amber-500/20 to-amber-600/20 border-amber-500/30' }
             ];
 
-            detallesArray.forEach(item => {
+            items.forEach(item => {
                 if (item.data.cantidad > 0) {
                     const div = document.createElement('div');
                     div.className = `bg-gradient-to-br ${item.color} rounded-xl p-4 border`;
-                    const colorGanancia = item.data.ganancia > 0 ? 'text-green-400' : item.data.ganancia < 0 ? 'text-red-400' : 'text-slate-400';
+                    const colorG = item.data.ganancia > 0 ? 'text-green-400' : item.data.ganancia < 0 ? 'text-red-400' : 'text-slate-400';
                     div.innerHTML = `
                         <h3 class="text-white font-semibold mb-3">${item.titulo}</h3>
                         <p class="text-slate-200 text-sm">USDT: <span class="font-mono font-bold">${item.data.cantidad.toLocaleString('es-DO', {minimumFractionDigits: 2})}</span></p>
-                        <p class="text-slate-200 text-sm">Monto: <span class="font-mono font-bold">${item.data.monto.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</span></p>
-                        <p class="text-sm">Ganancia: <span class="font-mono font-bold ${colorGanancia}">${item.data.ganancia.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP</span></p>
+                        <p class="text-slate-200 text-sm">Monto: <span class="font-mono font-bold">${item.data.monto.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${item.divisa}</span></p>
+                        <p class="text-sm">Ganancia: <span class="font-mono font-bold ${colorG}">${item.data.ganancia.toLocaleString('es-DO', {minimumFractionDigits: 2})} ${item.divisa}</span></p>
                     `;
                     resumen.appendChild(div);
+                }
+            });
+        }
+
+        function actualizarGraficas() {
+            // Gráfico Ganancias por Mes
+            const meses = {};
+            transacciones.forEach(t => {
+                const mes = t.fecha.substring(0, 7);
+                meses[mes] = (meses[mes] || 0) + t.gananciaTotal;
+            });
+
+            const ctxGanancias = document.getElementById('graficoGanancias');
+            if (window.chartGanancias) window.chartGanancias.destroy();
+            window.chartGanancias = new Chart(ctxGanancias, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(meses).sort(),
+                    datasets: [{
+                        label: 'Ganancias',
+                        data: Object.keys(meses).sort().map(m => meses[m]),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+
+            // Gráfico Compras vs Ventas
+            const compras = transacciones.filter(t => t.tipo === 'Compra').reduce((s, t) => s + t.cantidadUSDT, 0);
+            const ventas = transacciones.filter(t => t.tipo === 'Venta').reduce((s, t) => s + t.cantidadUSDT, 0);
+
+            const ctxCV = document.getElementById('graficoComprasVentas');
+            if (window.chartCV) window.chartCV.destroy();
+            window.chartCV = new Chart(ctxCV, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Compras', 'Ventas'],
+                    datasets: [{
+                        data: [compras, ventas],
+                        backgroundColor: ['#3b82f6', '#f97316']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } }
+                }
+            });
+
+            // Gráfico Volumen por Divisa
+            const volDOP = transacciones.filter(t => t.divisaPrecios === 'DOP').reduce((s, t) => s + t.montoTotal, 0);
+            const volUSD = transacciones.filter(t => t.divisaPrecios === 'USD').reduce((s, t) => s + t.montoTotal, 0);
+
+            const ctxVol = document.getElementById('graficoVolumen');
+            if (window.chartVol) window.chartVol.destroy();
+            window.chartVol = new Chart(ctxVol, {
+                type: 'bar',
+                data: {
+                    labels: ['DOP', 'USD'],
+                    datasets: [{
+                        label: 'Volumen Total',
+                        data: [volDOP, volUSD],
+                        backgroundColor: ['#8b5cf6', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
                 }
             });
         }
@@ -438,7 +794,7 @@
                 return;
             }
 
-            let csv = 'Tipo,Cantidad USDT,Pagado en,Divisa Precios,Precio Mercado,Tu Precio,Monto Total,Ganancia por USDT,Ganancia Total,Tasa USD-DOP,Fecha,Notas\n';
+            let csv = 'Tipo,Cantidad USDT,Pagado en,Divisa Precios,Precio Mercado,Tu Precio,Monto Total,Ganancia por USDT,Ganancia Total,Tasa,Fecha,Notas\n';
             transacciones.forEach(t => {
                 csv += `${t.tipo},${t.cantidadUSDT},${t.divisaPago},${t.divisaPrecios},${t.precioMercado},${t.tuPrecio},${t.montoTotal},${t.gananciaPorUSDT},${t.gananciaTotal},${t.tasaCambio || ''},${t.fecha},"${t.notas || ''}"\n`;
             });
@@ -452,33 +808,29 @@
         }
 
         async function compartirEstadisticas() {
-            const totalComprados = transacciones.filter(t => t.tipo === 'Compra').reduce((sum, t) => sum + t.cantidadUSDT, 0);
-            const totalVendidos = transacciones.filter(t => t.tipo === 'Venta').reduce((sum, t) => sum + t.cantidadUSDT, 0);
-            const gananciaTotal = transacciones.reduce((sum, t) => sum + t.gananciaTotal, 0);
+            const comprados = transacciones.filter(t => t.tipo === 'Compra').reduce((s, t) => s + t.cantidadUSDT, 0);
+            const vendidos = transacciones.filter(t => t.tipo === 'Venta').reduce((s, t) => s + t.cantidadUSDT, 0);
+            const ganancias = transacciones.reduce((s, t) => s + t.gananciaTotal, 0);
             
-            const texto = `📊 Mis estadísticas USDT:\n\n💰 USDT Comprados: ${totalComprados.toFixed(2)}\n💸 USDT Vendidos: ${totalVendidos.toFixed(2)}\n📈 Balance: ${(totalComprados - totalVendidos).toFixed(2)}\n✨ Ganancia Total: ${gananciaTotal.toLocaleString('es-DO', {minimumFractionDigits: 2})} DOP`;
+            const texto = `📊 USDT Tracker:\n\n💰 Comprados: ${comprados.toFixed(2)}\n💸 Vendidos: ${vendidos.toFixed(2)}\n📈 Balance: ${(comprados - vendidos).toFixed(2)}\n✨ Ganancias: ${ganancias.toFixed(2)}`;
 
             if (navigator.share) {
                 try {
-                    await navigator.share({
-                        title: 'USDT Tracker',
-                        text: texto
-                    });
-                } catch (err) {
-                    console.log('Error al compartir:', err);
-                }
+                    await navigator.share({ title: 'USDT Tracker', text: texto });
+                } catch (err) {}
             } else {
                 alert(texto);
             }
         }
 
         function confirmarBorrarTodo() {
-            if (confirm('¿Estás SEGURO de que quieres borrar TODAS las transacciones? Esta acción no se puede deshacer.')) {
-                if (confirm('Última confirmación: ¿Borrar todo?')) {
+            if (confirm('¿BORRAR TODAS las transacciones? No se puede deshacer.')) {
+                if (confirm('Última confirmación:')) {
                     transacciones = [];
                     guardarDatos();
-                    actualizarTabla();
-                    alert('Todas las transacciones han sido eliminadas');
+                    transaccionesFiltradas = [];
+                    actualizarTablaTransacciones();
+                    alert('Transacciones eliminadas');
                 }
             }
         }
