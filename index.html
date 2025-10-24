@@ -3,689 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="USDT Tracker">
-    <meta name="description" content="Registro profesional de transacciones USDT">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
     <title>USDT Tracker Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
-            min-height: 100vh;
-        }
-        .tab-active {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-        .tab-inactive {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.6);
-        }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%); min-height: 100vh; }
+        .tab-active { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .tab-inactive { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); }
     </style>
 </head>
 <body class="p-6">
-    <div class="max-w-[1800px] mx-auto">
+    <div class="max-w-7xl mx-auto">
         <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <div class="flex items-center gap-3">
-                    <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <h1 class="text-4xl font-bold text-white">USDT Tracker Pro</h1>
-                </div>
-            </div>
-
-            <!-- Tabs -->
+            <h1 class="text-4xl font-bold text-white mb-8">💰 USDT Tracker Pro</h1>
+            
             <div class="flex gap-2 mb-6 flex-wrap">
-                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer">
-                    💰 Betcris
-                </button>
-                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer">
-                    🇷🇺 Ventas Rusos
-                </button>
-                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer">
-                    📊 Transacciones
-                </button>
-                <button onclick="cambiarTab('graficas')" id="tabGraficas" class="tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer">
-                    📈 Gráficas
-                </button>
+                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-lg font-semibold cursor-pointer">💰 Betcris</button>
+                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer">🇷🇺 Rusos</button>
+                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer">📊 Transacciones</button>
             </div>
 
-            <!-- SECCIÓN BETCRIS -->
+            <!-- BETCRIS -->
             <div id="seccionBetcris">
-                <!-- Dashboard Betcris -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-xl p-6 border border-yellow-500/30">
-                        <h3 class="text-yellow-300 font-semibold mb-2 text-lg">💵 Total a Liquidar</h3>
-                        <p class="text-white text-3xl font-bold" id="totalALiquidarBetcris">0.00</p>
+                    <div class="bg-yellow-500/20 rounded-xl p-6 border border-yellow-500/30">
+                        <h3 class="text-yellow-300 font-semibold mb-2">Total a Liquidar</h3>
+                        <p class="text-white text-3xl font-bold" id="totalLiquidar">0.00</p>
                     </div>
-                    <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
-                        <h3 class="text-emerald-300 font-semibold mb-2 text-lg">✅ USDT Comprados</h3>
-                        <p class="text-white text-3xl font-bold" id="totalCompradosBetcris">0.00</p>
+                    <div class="bg-emerald-500/20 rounded-xl p-6 border border-emerald-500/30">
+                        <h3 class="text-emerald-300 font-semibold mb-2">USDT Comprados</h3>
+                        <p class="text-white text-3xl font-bold" id="totalCompradosB">0.00</p>
                     </div>
-                    <div class="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl p-6 border border-red-500/30">
-                        <h3 class="text-red-300 font-semibold mb-2 text-lg">⏳ Pendiente</h3>
-                        <p class="text-white text-3xl font-bold" id="pendienteBetcris">0.00</p>
+                    <div class="bg-red-500/20 rounded-xl p-6 border border-red-500/30">
+                        <h3 class="text-red-300 font-semibold mb-2">Pendiente</h3>
+                        <p class="text-white text-3xl font-bold" id="pendiente">0.00</p>
                     </div>
                 </div>
 
-                <!-- Formulario Recogida -->
                 <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">💰 Nueva Recogida Betcris</h2>
+                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Recogida</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="date" id="fechaRecogidaBetcris" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="montoDOPBetcris" placeholder="Monto DOP" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="montoUSDBetcris" placeholder="Monto USD" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="tasaDiaBetcris" placeholder="Tasa DOP→USD" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <button onclick="agregarRecogidaBetcris()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold">
-                            Agregar
-                        </button>
+                        <input type="date" id="fechaR" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="dop" placeholder="DOP" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="usd" placeholder="USD" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="tasa" placeholder="Tasa" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <button onclick="agregarRecogida()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
                     </div>
                 </div>
 
-                <!-- Tabla Recogidas -->
-                <div class="overflow-x-auto mb-6">
-                    <h3 class="text-white font-semibold text-lg mb-3">📋 Recogidas</h3>
-                    <table class="w-full text-white text-sm">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-3 px-3">Fecha</th>
-                                <th class="text-right py-3 px-3">DOP</th>
-                                <th class="text-right py-3 px-3">USD</th>
-                                <th class="text-right py-3 px-3">Tasa</th>
-                                <th class="text-right py-3 px-3">Total USD</th>
-                                <th class="text-right py-3 px-3">USDT a Liquidar</th>
-                                <th class="text-center py-3 px-3">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaRecogidasBetcris"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-white text-sm mb-6">
+                    <thead><tr class="border-b border-white/20">
+                        <th class="text-left py-3 px-3">Fecha</th>
+                        <th class="text-right py-3 px-3">DOP</th>
+                        <th class="text-right py-3 px-3">USD</th>
+                        <th class="text-right py-3 px-3">USDT Liquidar</th>
+                        <th class="text-center py-3 px-3">-</th>
+                    </tr></thead>
+                    <tbody id="tablaR"></tbody>
+                </table>
 
-                <!-- Formulario Compra Betcris -->
                 <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">💳 Compra USDT para Liquidar</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <input type="date" id="fechaCompraBetcris" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="cantidadUSDTBetcris" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="precioUSDTBetcris" placeholder="Precio" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <select id="divisaCompraBetcris" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                            <option value="DOP">DOP</option>
-                            <option value="USD">USD</option>
-                        </select>
-                        <input type="text" id="notasCompraBetcris" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <button onclick="agregarCompraBetcris()" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-6 py-2 font-semibold">
-                            Agregar
-                        </button>
+                    <h2 class="text-xl font-semibold text-white mb-4">Compra USDT</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <input type="date" id="fechaC" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="cantC" placeholder="Cantidad" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="precioC" placeholder="Precio" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="text" id="notasC" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <button onclick="agregarCompra()" class="bg-blue-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
                     </div>
                 </div>
 
-                <!-- Tabla Compras Betcris -->
-                <div class="overflow-x-auto">
-                    <h3 class="text-white font-semibold text-lg mb-3">💳 Compras para Liquidar</h3>
-                    <table class="w-full text-white text-sm">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-3 px-3">Fecha</th>
-                                <th class="text-right py-3 px-3">USDT</th>
-                                <th class="text-right py-3 px-3">Precio</th>
-                                <th class="text-center py-3 px-3">Divisa</th>
-                                <th class="text-right py-3 px-3">Total</th>
-                                <th class="text-left py-3 px-3">Notas</th>
-                                <th class="text-center py-3 px-3">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaComprasBetcris"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-white text-sm">
+                    <thead><tr class="border-b border-white/20">
+                        <th class="text-left py-3 px-3">Fecha</th>
+                        <th class="text-right py-3 px-3">USDT</th>
+                        <th class="text-right py-3 px-3">Precio</th>
+                        <th class="text-left py-3 px-3">Notas</th>
+                        <th class="text-center py-3 px-3">-</th>
+                    </tr></thead>
+                    <tbody id="tablaC"></tbody>
+                </table>
             </div>
 
-            <!-- SECCIÓN RUSOS -->
+            <!-- RUSOS -->
             <div id="seccionRusos" class="hidden">
-                <!-- Dashboard Rusos -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-6 border border-purple-500/30">
-                        <h3 class="text-purple-300 font-semibold mb-2 text-lg">💰 Ganancia Total</h3>
-                        <p class="text-white text-3xl font-bold" id="gananciaTotalRusos">$0.00</p>
+                    <div class="bg-purple-500/20 rounded-xl p-6 border border-purple-500/30">
+                        <h3 class="text-purple-300 font-semibold mb-2">Ganancia Total</h3>
+                        <p class="text-white text-3xl font-bold" id="ganTotal">$0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
-                        <h3 class="text-blue-300 font-semibold mb-2 text-lg">👤 Tu Parte (50%)</h3>
-                        <p class="text-white text-3xl font-bold" id="tuParteRusos">$0.00</p>
+                    <div class="bg-blue-500/20 rounded-xl p-6 border border-blue-500/30">
+                        <h3 class="text-blue-300 font-semibold mb-2">Tu Parte</h3>
+                        <p class="text-white text-3xl font-bold" id="tuParte">$0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-xl p-6 border border-cyan-500/30">
-                        <h3 class="text-cyan-300 font-semibold mb-2 text-lg">🤝 Socio (50%)</h3>
-                        <p class="text-white text-3xl font-bold" id="parteSocioRusos">$0.00</p>
+                    <div class="bg-cyan-500/20 rounded-xl p-6 border border-cyan-500/30">
+                        <h3 class="text-cyan-300 font-semibold mb-2">Socio</h3>
+                        <p class="text-white text-3xl font-bold" id="socio">$0</p>
                     </div>
                 </div>
 
-                <!-- Formulario Rusos -->
                 <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">🇷🇺 Nueva Venta a Rusos</h2>
+                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Venta Rusos</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="date" id="fechaRusos" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="cantidadUSDTRusos" placeholder="USDT Recibidos" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="porcentajeRusos" placeholder="% Ganancia" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="text" id="notasRusos" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <button onclick="agregarVentaRusos()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold">
-                            Agregar
-                        </button>
+                        <input type="date" id="fechaRu" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="usdtRu" placeholder="USDT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="porcRu" placeholder="%" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="text" id="notasRu" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <button onclick="agregarRuso()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
                     </div>
                 </div>
 
-                <!-- Tabla Rusos -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-white text-sm">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-3 px-3">Fecha</th>
-                                <th class="text-right py-3 px-3">USDT</th>
-                                <th class="text-right py-3 px-3">%</th>
-                                <th class="text-right py-3 px-3">Ganancia Total</th>
-                                <th class="text-right py-3 px-3">Tu Parte</th>
-                                <th class="text-right py-3 px-3">Socio</th>
-                                <th class="text-left py-3 px-3">Notas</th>
-                                <th class="text-center py-3 px-3">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaVentasRusos"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-white text-sm">
+                    <thead><tr class="border-b border-white/20">
+                        <th class="text-left py-3 px-3">Fecha</th>
+                        <th class="text-right py-3 px-3">USDT</th>
+                        <th class="text-right py-3 px-3">%</th>
+                        <th class="text-right py-3 px-3">Ganancia</th>
+                        <th class="text-right py-3 px-3">Tu Parte</th>
+                        <th class="text-left py-3 px-3">Notas</th>
+                        <th class="text-center py-3 px-3">-</th>
+                    </tr></thead>
+                    <tbody id="tablaRu"></tbody>
+                </table>
             </div>
 
-            <!-- SECCIÓN TRANSACCIONES -->
+            <!-- TRANSACCIONES -->
             <div id="seccionTransacciones" class="hidden">
                 <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">📊 Nueva Transacción</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                            <option value="Compra">Compra</option>
-                            <option value="Venta">Venta</option>
-                        </select>
-                        <input type="number" id="cantidadUSDT" placeholder="Cantidad USDT" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <select id="divisaPago" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                            <option value="DOP">Pagado en DOP</option>
-                            <option value="USD">Pagado en USD</option>
-                        </select>
-                        <input type="date" id="fecha" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                    </div>
+                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Transacción</h2>
                     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <select id="divisaPrecios" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                            <option value="DOP">Precios en DOP</option>
-                            <option value="USD">Precios en USD</option>
+                        <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                            <option>Compra</option>
+                            <option>Venta</option>
                         </select>
-                        <input type="number" id="precioMercado" placeholder="Precio Mercado" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="tuPrecio" placeholder="Tu Precio" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="number" id="tasaCambio" placeholder="Tasa" step="0.01" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <input type="text" id="notas" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2 border border-slate-600">
-                        <button onclick="agregarTransaccion()" class="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-6 py-2 font-semibold">
-                            Agregar
-                        </button>
+                        <input type="number" id="cantT" placeholder="USDT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="precioM" placeholder="P. Mercado" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="number" id="tuPrecioT" placeholder="Tu Precio" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <input type="date" id="fechaT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <button onclick="agregarTrans()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl p-6 border border-emerald-500/30">
+                    <div class="bg-emerald-500/20 rounded-xl p-6">
                         <h3 class="text-emerald-300 font-semibold mb-2">Comprados</h3>
-                        <p class="text-white text-3xl font-bold" id="totalComprados">0</p>
+                        <p class="text-white text-3xl font-bold" id="compT">0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
+                    <div class="bg-orange-500/20 rounded-xl p-6">
                         <h3 class="text-orange-300 font-semibold mb-2">Vendidos</h3>
-                        <p class="text-white text-3xl font-bold" id="totalVendidos">0</p>
+                        <p class="text-white text-3xl font-bold" id="vendT">0</p>
                     </div>
-                    <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
+                    <div class="bg-blue-500/20 rounded-xl p-6">
                         <h3 class="text-blue-300 font-semibold mb-2">Balance</h3>
-                        <p class="text-white text-3xl font-bold" id="balanceUSDT">0</p>
+                        <p class="text-white text-3xl font-bold" id="balT">0</p>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-white text-sm">
-                        <thead>
-                            <tr class="border-b border-white/20">
-                                <th class="text-left py-3 px-3">Tipo</th>
-                                <th class="text-right py-3 px-3">USDT</th>
-                                <th class="text-center py-3 px-3">Divisa</th>
-                                <th class="text-right py-3 px-3">P. Mercado</th>
-                                <th class="text-right py-3 px-3">Tu Precio</th>
-                                <th class="text-right py-3 px-3">Ganancia</th>
-                                <th class="text-center py-3 px-3">Fecha</th>
-                                <th class="text-center py-3 px-3">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaTransacciones"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SECCIÓN GRÁFICAS -->
-            <div id="seccionGraficas" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 class="text-white font-semibold mb-4">Ganancias</h3>
-                        <canvas id="graficoGanancias"></canvas>
-                    </div>
-                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 class="text-white font-semibold mb-4">Compras vs Ventas</h3>
-                        <canvas id="graficoComprasVentas"></canvas>
-                    </div>
-                </div>
+                <table class="w-full text-white text-sm">
+                    <thead><tr class="border-b border-white/20">
+                        <th class="text-left py-3 px-3">Tipo</th>
+                        <th class="text-right py-3 px-3">USDT</th>
+                        <th class="text-right py-3 px-3">Ganancia</th>
+                        <th class="text-center py-3 px-3">Fecha</th>
+                        <th class="text-center py-3 px-3">-</th>
+                    </tr></thead>
+                    <tbody id="tablaT"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        let transacciones = [];
-        let recogidasBetcris = [];
-        let comprasBetcris = [];
-        let ventasRusos = [];
+let recogidas=JSON.parse(localStorage.getItem('rec')||'[]');
+let compras=JSON.parse(localStorage.getItem('comp')||'[]');
+let rusos=JSON.parse(localStorage.getItem('rus')||'[]');
+let trans=JSON.parse(localStorage.getItem('trans')||'[]');
 
-        window.onload = function() {
-            cargarDatos();
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').value = hoy;
-            document.getElementById('fechaRecogidaBetcris').value = hoy;
-            document.getElementById('fechaCompraBetcris').value = hoy;
-            document.getElementById('fechaRusos').value = hoy;
-        };
+window.onload=()=>{
+    document.getElementById('fechaR').valueAsDate=new Date();
+    document.getElementById('fechaC').valueAsDate=new Date();
+    document.getElementById('fechaRu').valueAsDate=new Date();
+    document.getElementById('fechaT').valueAsDate=new Date();
+    actualizar();
+};
 
-        function cambiarTab(tab) {
-            document.getElementById('tabBetcris').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-            document.getElementById('tabRusos').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-            document.getElementById('tabTransacciones').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-            document.getElementById('tabGraficas').className = 'tab-inactive px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-            
-            document.getElementById('seccionBetcris').classList.add('hidden');
-            document.getElementById('seccionRusos').classList.add('hidden');
-            document.getElementById('seccionTransacciones').classList.add('hidden');
-            document.getElementById('seccionGraficas').classList.add('hidden');
-            
-            if (tab === 'betcris') {
-                document.getElementById('tabBetcris').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-                document.getElementById('seccionBetcris').classList.remove('hidden');
-            } else if (tab === 'rusos') {
-                document.getElementById('tabRusos').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-                document.getElementById('seccionRusos').classList.remove('hidden');
-            } else if (tab === 'transacciones') {
-                document.getElementById('tabTransacciones').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-                document.getElementById('seccionTransacciones').classList.remove('hidden');
-            } else if (tab === 'graficas') {
-                document.getElementById('tabGraficas').className = 'tab-active px-6 py-3 rounded-lg font-semibold transition-all cursor-pointer';
-                document.getElementById('seccionGraficas').classList.remove('hidden');
-                actualizarGraficas();
-            }
-        }
+function cambiarTab(t){
+    ['tabBetcris','tabRusos','tabTransacciones'].forEach(id=>document.getElementById(id).className='tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer');
+    ['seccionBetcris','seccionRusos','seccionTransacciones'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).className='tab-active px-6 py-3 rounded-lg font-semibold cursor-pointer';
+    document.getElementById('seccion'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden');
+}
 
-        function cargarDatos() {
-            const t = localStorage.getItem('transaccionesUSDT');
-            const rb = localStorage.getItem('recogidasBetcris');
-            const cb = localStorage.getItem('comprasBetcris');
-            const vr = localStorage.getItem('ventasRusos');
-            
-            if (t) transacciones = JSON.parse(t);
-            if (rb) recogidasBetcris = JSON.parse(rb);
-            if (cb) comprasBetcris = JSON.parse(cb);
-            if (vr) ventasRusos = JSON.parse(vr);
-            
-            actualizarTablaBetcris();
-            actualizarTablaRusos();
-            actualizarTablaTransacciones();
-        }
+function agregarRecogida(){
+    const f=document.getElementById('fechaR').value;
+    const d=parseFloat(document.getElementById('dop').value)||0;
+    const u=parseFloat(document.getElementById('usd').value)||0;
+    const t=parseFloat(document.getElementById('tasa').value)||0;
+    if(!f||(!d&&!u)){alert('Completa los datos');return;}
+    const du=t>0?d/t:0;
+    const tu=du+u;
+    recogidas.push({id:Date.now(),f,d,u,t,usdt:tu/1.03});
+    localStorage.setItem('rec',JSON.stringify(recogidas));
+    document.getElementById('dop').value='';
+    document.getElementById('usd').value='';
+    document.getElementById('tasa').value='';
+    actualizar();
+}
 
-        function guardarDatos() {
-            localStorage.setItem('transaccionesUSDT', JSON.stringify(transacciones));
-            localStorage.setItem('recogidasBetcris', JSON.stringify(recogidasBetcris));
-            localStorage.setItem('comprasBetcris', JSON.stringify(comprasBetcris));
-            localStorage.setItem('ventasRusos', JSON.stringify(ventasRusos));
-        }
+function agregarCompra(){
+    const f=document.getElementById('fechaC').value;
+    const c=parseFloat(document.getElementById('cantC').value);
+    const p=parseFloat(document.getElementById('precioC').value);
+    const n=document.getElementById('notasC').value;
+    if(!f||!c||!p){alert('Completa los datos');return;}
+    compras.push({id:Date.now(),f,c,p,n});
+    localStorage.setItem('comp',JSON.stringify(compras));
+    document.getElementById('cantC').value='';
+    document.getElementById('precioC').value='';
+    document.getElementById('notasC').value='';
+    actualizar();
+}
 
-        function agregarRecogidaBetcris() {
-            const fecha = document.getElementById('fechaRecogidaBetcris').value;
-            const dop = parseFloat(document.getElementById('montoDOPBetcris').value) || 0;
-            const usd = parseFloat(document.getElementById('montoUSDBetcris').value) || 0;
-            const tasa = parseFloat(document.getElementById('tasaDiaBetcris').value) || 0;
+function agregarRuso(){
+    const f=document.getElementById('fechaRu').value;
+    const u=parseFloat(document.getElementById('usdtRu').value);
+    const p=parseFloat(document.getElementById('porcRu').value);
+    const n=document.getElementById('notasRu').value;
+    if(!f||!u||!p){alert('Completa los datos');return;}
+    const g=u*(p/100);
+    rusos.push({id:Date.now(),f,u,p,g,tp:g/2,n});
+    localStorage.setItem('rus',JSON.stringify(rusos));
+    document.getElementById('usdtRu').value='';
+    document.getElementById('porcRu').value='';
+    document.getElementById('notasRu').value='';
+    actualizar();
+}
 
-            if (!fecha || (dop === 0 && usd === 0)) {
-                alert('Completa fecha y al menos un monto');
-                return;
-            }
+function agregarTrans(){
+    const t=document.getElementById('tipo').value;
+    const c=parseFloat(document.getElementById('cantT').value);
+    const pm=parseFloat(document.getElementById('precioM').value);
+    const tp=parseFloat(document.getElementById('tuPrecioT').value);
+    const f=document.getElementById('fechaT').value;
+    if(!c||!pm||!tp||!f){alert('Completa los datos');return;}
+    const g=(t==='Compra'?pm-tp:tp-pm)*c;
+    trans.push({id:Date.now(),t,c,g,f});
+    localStorage.setItem('trans',JSON.stringify(trans));
+    document.getElementById('cantT').value='';
+    document.getElementById('precioM').value='';
+    document.getElementById('tuPrecioT').value='';
+    actualizar();
+}
 
-            const dopAUsd = tasa > 0 ? dop / tasa : 0;
-            const totalUsd = dopAUsd + usd;
-            const usdtLiquidar = totalUsd / 1.03;
+function eliminar(arr,key,id){
+    const idx=arr.findIndex(x=>x.id===id);
+    if(idx>-1&&confirm('¿Eliminar?')){
+        arr.splice(idx,1);
+        localStorage.setItem(key,JSON.stringify(arr));
+        actualizar();
+    }
+}
 
-            recogidasBetcris.push({
-                id: Date.now(),
-                fecha,
-                dop,
-                usd,
-                tasa,
-                totalUsd,
-                usdtLiquidar
-            });
+function actualizar(){
+    let tl=0,tc=0;
+    document.getElementById('tablaR').innerHTML=recogidas.map(r=>{tl+=r.usdt;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${r.f}</td><td class="text-right py-3 px-3">${r.d.toFixed(2)}</td><td class="text-right py-3 px-3">${r.u.toFixed(2)}</td><td class="text-right py-3 px-3 text-yellow-400 font-bold">${r.usdt.toFixed(2)}</td><td class="text-center py-3 px-3"><button onclick="eliminar(recogidas,'rec',${r.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
+    document.getElementById('tablaC').innerHTML=compras.map(c=>{tc+=c.c;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${c.f}</td><td class="text-right py-3 px-3 font-semibold">${c.c.toFixed(2)}</td><td class="text-right py-3 px-3">${c.p.toFixed(2)}</td><td class="py-3 px-3">${c.n||'-'}</td><td class="text-center py-3 px-3"><button onclick="eliminar(compras,'comp',${c.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
+    document.getElementById('totalLiquidar').textContent=tl.toFixed(2);
+    document.getElementById('totalCompradosB').textContent=tc.toFixed(2);
+    document.getElementById('pendiente').textContent=(tl-tc).toFixed(2);
 
-            guardarDatos();
-            actualizarTablaBetcris();
+    let gt=0,gtp=0;
+    document.getElementById('tablaRu').innerHTML=rusos.map(r=>{gt+=r.g;gtp+=r.tp;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${r.f}</td><td class="text-right py-3 px-3">${r.u.toFixed(2)}</td><td class="text-right py-3 px-3">${r.p}%</td><td class="text-right py-3 px-3 text-emerald-400 font-bold">$${r.g.toFixed(2)}</td><td class="text-right py-3 px-3 text-blue-400">$${r.tp.toFixed(2)}</td><td class="py-3 px-3">${r.n||'-'}</td><td class="text-center py-3 px-3"><button onclick="eliminar(rusos,'rus',${r.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
+    document.getElementById('ganTotal').textContent='$'+gt.toFixed(2);
+    document.getElementById('tuParte').textContent='$'+gtp.toFixed(2);
+    document.getElementById('socio').textContent='$'+gtp.toFixed(2);
 
-            document.getElementById('montoDOPBetcris').value = '';
-            document.getElementById('montoUSDBetcris').value = '';
-            document.getElementById('tasaDiaBetcris').value = '';
-        }
-
-        function eliminarRecogidaBetcris(id) {
-            if (confirm('¿Eliminar?')) {
-                recogidasBetcris = recogidasBetcris.filter(r => r.id !== id);
-                guardarDatos();
-                actualizarTablaBetcris();
-            }
-        }
-
-        function agregarCompraBetcris() {
-            const fecha = document.getElementById('fechaCompraBetcris').value;
-            const cantidad = parseFloat(document.getElementById('cantidadUSDTBetcris').value);
-            const precio = parseFloat(document.getElementById('precioUSDTBetcris').value);
-            const divisa = document.getElementById('divisaCompraBetcris').value;
-            const notas = document.getElementById('notasCompraBetcris').value;
-
-            if (!fecha || !cantidad || !precio) {
-                alert('Completa fecha, cantidad y precio');
-                return;
-            }
-
-            comprasBetcris.push({
-                id: Date.now(),
-                fecha,
-                cantidad,
-                precio,
-                divisa,
-                total: cantidad * precio,
-                notas
-            });
-
-            guardarDatos();
-            actualizarTablaBetcris();
-
-            document.getElementById('cantidadUSDTBetcris').value = '';
-            document.getElementById('precioUSDTBetcris').value = '';
-            document.getElementById('notasCompraBetcris').value = '';
-        }
-
-        function eliminarCompraBetcris(id) {
-            if (confirm('¿Eliminar?')) {
-                comprasBetcris = comprasBetcris.filter(c => c.id !== id);
-                guardarDatos();
-                actualizarTablaBetcris();
-            }
-        }
-
-        function actualizarTablaBetcris() {
-            const tbody1 = document.getElementById('tablaRecogidasBetcris');
-            const tbody2 = document.getElementById('tablaComprasBetcris');
-            tbody1.innerHTML = '';
-            tbody2.innerHTML = '';
-
-            let totalALiquidar = 0;
-            let totalComprado = 0;
-
-            recogidasBetcris.forEach(r => {
-                totalALiquidar += r.usdtLiquidar;
-                tbody1.innerHTML += `
-                    <tr class="border-b border-white/10">
-                        <td class="py-3 px-3">${r.fecha}</td>
-                        <td class="text-right py-3 px-3">${r.dop.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3">${r.usd.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3">${r.tasa > 0 ? r.tasa.toFixed(2) : '-'}</td>
-                        <td class="text-right py-3 px-3 text-emerald-400 font-semibold">${r.totalUsd.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 text-yellow-400 font-bold">${r.usdtLiquidar.toFixed(2)}</td>
-                        <td class="text-center py-3 px-3">
-                            <button onclick="eliminarRecogidaBetcris(${r.id})" class="text-red-400 hover:text-red-300">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            comprasBetcris.forEach(c => {
-                totalComprado += c.cantidad;
-                tbody2.innerHTML += `
-                    <tr class="border-b border-white/10">
-                        <td class="py-3 px-3">${c.fecha}</td>
-                        <td class="text-right py-3 px-3 font-semibold">${c.cantidad.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3">${c.precio.toFixed(2)}</td>
-                        <td class="text-center py-3 px-3"><span class="px-2 py-1 bg-slate-700 rounded text-xs">${c.divisa}</span></td>
-                        <td class="text-right py-3 px-3 text-emerald-400 font-semibold">${c.total.toFixed(2)}</td>
-                        <td class="py-3 px-3 text-xs">${c.notas || '-'}</td>
-                        <td class="text-center py-3 px-3">
-                            <button onclick="eliminarCompraBetcris(${c.id})" class="text-red-400 hover:text-red-300">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('totalALiquidarBetcris').textContent = totalALiquidar.toFixed(2);
-            document.getElementById('totalCompradosBetcris').textContent = totalComprado.toFixed(2);
-            document.getElementById('pendienteBetcris').textContent = (totalALiquidar - totalComprado).toFixed(2);
-        }
-
-        function agregarVentaRusos() {
-            const fecha = document.getElementById('fechaRusos').value;
-            const usdt = parseFloat(document.getElementById('cantidadUSDTRusos').value);
-            const porcentaje = parseFloat(document.getElementById('porcentajeRusos').value);
-            const notas = document.getElementById('notasRusos').value;
-
-            if (!fecha || !usdt || !porcentaje) {
-                alert('Completa fecha, USDT y porcentaje');
-                return;
-            }
-
-            const gananciaTotal = usdt * (porcentaje / 100);
-            const tuParte = gananciaTotal / 2;
-            const parteSocio = gananciaTotal / 2;
-
-            ventasRusos.push({
-                id: Date.now(),
-                fecha,
-                usdt,
-                porcentaje,
-                gananciaTotal,
-                tuParte,
-                parteSocio,
-                notas
-            });
-
-            guardarDatos();
-            actualizarTablaRusos();
-
-            document.getElementById('cantidadUSDTRusos').value = '';
-            document.getElementById('porcentajeRusos').value = '';
-            document.getElementById('notasRusos').value = '';
-        }
-
-        function eliminarVentaRusos(id) {
-            if (confirm('¿Eliminar?')) {
-                ventasRusos = ventasRusos.filter(v => v.id !== id);
-                guardarDatos();
-                actualizarTablaRusos();
-            }
-        }
-
-        function actualizarTablaRusos() {
-            const tbody = document.getElementById('tablaVentasRusos');
-            tbody.innerHTML = '';
-
-            let totalGanancia = 0;
-            let totalTuParte = 0;
-            let totalSocio = 0;
-
-            ventasRusos.forEach(v => {
-                totalGanancia += v.gananciaTotal;
-                totalTuParte += v.tuParte;
-                totalSocio += v.parteSocio;
-
-                tbody.innerHTML += `
-                    <tr class="border-b border-white/10">
-                        <td class="py-3 px-3">${v.fecha}</td>
-                        <td class="text-right py-3 px-3 font-semibold">${v.usdt.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 text-yellow-400">${v.porcentaje.toFixed(2)}%</td>
-                        <td class="text-right py-3 px-3 text-emerald-400 font-bold">${v.gananciaTotal.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 text-blue-400 font-semibold">${v.tuParte.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 text-cyan-400 font-semibold">${v.parteSocio.toFixed(2)}</td>
-                        <td class="py-3 px-3 text-xs">${v.notas || '-'}</td>
-                        <td class="text-center py-3 px-3">
-                            <button onclick="eliminarVentaRusos(${v.id})" class="text-red-400 hover:text-red-300">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('gananciaTotalRusos').textContent = ' + totalGanancia.toFixed(2);
-            document.getElementById('tuParteRusos').textContent = ' + totalTuParte.toFixed(2);
-            document.getElementById('parteSocioRusos').textContent = ' + totalSocio.toFixed(2);
-        }
-
-        function agregarTransaccion() {
-            const tipo = document.getElementById('tipo').value;
-            const cantidadUSDT = parseFloat(document.getElementById('cantidadUSDT').value);
-            const divisaPago = document.getElementById('divisaPago').value;
-            const divisaPrecios = document.getElementById('divisaPrecios').value;
-            const precioMercado = parseFloat(document.getElementById('precioMercado').value);
-            const tuPrecio = parseFloat(document.getElementById('tuPrecio').value);
-            const tasaCambio = parseFloat(document.getElementById('tasaCambio').value) || null;
-            const notas = document.getElementById('notas').value;
-            const fecha = document.getElementById('fecha').value;
-
-            if (!cantidadUSDT || !precioMercado || !tuPrecio || !fecha) {
-                alert('Completa los campos obligatorios');
-                return;
-            }
-
-            const gananciaPorUSDT = tipo === 'Compra' ? precioMercado - tuPrecio : tuPrecio - precioMercado;
-            const gananciaTotal = gananciaPorUSDT * cantidadUSDT;
-
-            transacciones.push({
-                id: Date.now(),
-                tipo,
-                cantidadUSDT,
-                divisaPago,
-                divisaPrecios,
-                precioMercado,
-                tuPrecio,
-                gananciaPorUSDT,
-                gananciaTotal,
-                tasaCambio,
-                notas,
-                fecha
-            });
-
-            guardarDatos();
-            actualizarTablaTransacciones();
-
-            document.getElementById('cantidadUSDT').value = '';
-            document.getElementById('precioMercado').value = '';
-            document.getElementById('tuPrecio').value = '';
-            document.getElementById('tasaCambio').value = '';
-            document.getElementById('notas').value = '';
-        }
-
-        function eliminarTransaccion(id) {
-            if (confirm('¿Eliminar?')) {
-                transacciones = transacciones.filter(t => t.id !== id);
-                guardarDatos();
-                actualizarTablaTransacciones();
-            }
-        }
-
-        function actualizarTablaTransacciones() {
-            const tbody = document.getElementById('tablaTransacciones');
-            tbody.innerHTML = '';
-
-            let totalComprados = 0;
-            let totalVendidos = 0;
-
-            transacciones.forEach(t => {
-                if (t.tipo === 'Compra') totalComprados += t.cantidadUSDT;
-                else totalVendidos += t.cantidadUSDT;
-
-                const colorTipo = t.tipo === 'Compra' ? 'bg-blue-500/20 text-blue-300' : 'bg-orange-500/20 text-orange-300';
-                const colorGan = t.gananciaTotal > 0 ? 'text-green-400' : 'text-red-400';
-
-                tbody.innerHTML += `
-                    <tr class="border-b border-white/10">
-                        <td class="py-3 px-3"><span class="${colorTipo} px-3 py-1 rounded-full text-xs">${t.tipo}</span></td>
-                        <td class="text-right py-3 px-3 font-semibold">${t.cantidadUSDT.toFixed(2)}</td>
-                        <td class="text-center py-3 px-3"><span class="px-2 py-1 bg-slate-700 rounded text-xs">${t.divisaPrecios}</span></td>
-                        <td class="text-right py-3 px-3">${t.precioMercado.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 font-semibold">${t.tuPrecio.toFixed(2)}</td>
-                        <td class="text-right py-3 px-3 ${colorGan} font-bold">${t.gananciaTotal.toFixed(2)}</td>
-                        <td class="text-center py-3 px-3">${t.fecha}</td>
-                        <td class="text-center py-3 px-3">
-                            <button onclick="eliminarTransaccion(${t.id})" class="text-red-400 hover:text-red-300">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('totalComprados').textContent = totalComprados.toFixed(2);
-            document.getElementById('totalVendidos').textContent = totalVendidos.toFixed(2);
-            document.getElementById('balanceUSDT').textContent = (totalComprados - totalVendidos).toFixed(2);
-        }
-
-        function actualizarGraficas() {
-            const meses = {};
-            transacciones.forEach(t => {
-                const mes = t.fecha.substring(0, 7);
-                meses[mes] = (meses[mes] || 0) + t.gananciaTotal;
-            });
-
-            const ctxGan = document.getElementById('graficoGanancias');
-            if (window.chartGan) window.chartGan.destroy();
-            window.chartGan = new Chart(ctxGan, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(meses).sort(),
-                    datasets: [{
-                        label: 'Ganancias',
-                        data: Object.keys(meses).sort().map(m => meses[m]),
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#fff' } } },
-                    scales: {
-                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
-                    }
-                }
-            });
-
-            const compras = transacciones.filter(t => t.tipo === 'Compra').reduce((s, t) => s + t.cantidadUSDT, 0);
-            const ventas = transacciones.filter(t => t.tipo === 'Venta').reduce((s, t) => s + t.cantidadUSDT, 0);
-
-            const ctxCV = document.getElementById('graficoComprasVentas');
-            if (window.chartCV) window.chartCV.destroy();
-            window.chartCV = new Chart(ctxCV, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Compras', 'Ventas'],
-                    datasets: [{
-                        data: [compras, ventas],
-                        backgroundColor: ['#3b82f6', '#f97316']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#fff' } } }
-                }
-            });
-        }
+    let comp=0,vend=0;
+    document.getElementById('tablaT').innerHTML=trans.map(t=>{t.t==='Compra'?comp+=t.c:vend+=t.c;const col=t.g>0?'text-green-400':'text-red-400';return`<tr class="border-b border-white/10"><td class="py-3 px-3"><span class="px-3 py-1 rounded-full text-xs ${t.t==='Compra'?'bg-blue-500/20 text-blue-300':'bg-orange-500/20 text-orange-300'}">${t.t}</span></td><td class="text-right py-3 px-3 font-semibold">${t.c.toFixed(2)}</td><td class="text-right py-3 px-3 ${col} font-bold">${t.g.toFixed(2)}</td><td class="text-center py-3 px-3">${t.f}</td><td class="text-center py-3 px-3"><button onclick="eliminar(trans,'trans',${t.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
+    document.getElementById('compT').textContent=comp.toFixed(2);
+    document.getElementById('vendT').textContent=vend.toFixed(2);
+    document.getElementById('balT').textContent=(comp-vend).toFixed(2);
+}
     </script>
 </body>
 </html>
