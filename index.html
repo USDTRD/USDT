@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#003087">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="USDT Tracker">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./icon-192.png">
     <title>USDT Tracker Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #003087 0%, #0070ba 50%, #003087 100%);
@@ -24,7 +24,8 @@
         }
         .tab-inactive {
             background: rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.7);
+            color: #1e40af;
+            font-weight: 600;
         }
         .card-glass {
             background: rgba(255, 255, 255, 0.95);
@@ -36,7 +37,6 @@
     <div class="max-w-[1800px] mx-auto">
         <div class="card-glass rounded-3xl shadow-2xl p-6 md:p-8 border border-white">
             
-            <!-- Header -->
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-3">
                     <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3 rounded-2xl shadow-lg">
@@ -51,23 +51,15 @@
                 </div>
             </div>
 
-            <!-- Tabs -->
             <div class="flex gap-2 mb-6 flex-wrap">
-                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
-                    💰 Betcris
-                </button>
-                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
-                    🇷🇺 Ventas Rusos
-                </button>
-                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
-                    📊 Transacciones
-                </button>
-                <button onclick="cambiarTab('graficas')" id="tabGraficas" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
-                    📈 Estadísticas
-                </button>
+                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">💰 Betcris</button>
+                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">🇷🇺 Ventas Rusos</button>
+                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">📊 Transacciones</button>
+                <button onclick="cambiarTab('reportes')" id="tabReportes" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">📋 Reportes</button>
+                <button onclick="cambiarTab('graficas')" id="tabGraficas" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">📈 Estadísticas</button>
             </div>
 
-            <!-- SECCIÓN BETCRIS -->
+            <!-- BETCRIS -->
             <div id="seccionBetcris">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl p-6 shadow-lg">
@@ -80,10 +72,10 @@
                         <p class="text-white text-3xl font-bold" id="totalCompradosB">0.00</p>
                         <p class="text-green-100 text-sm">Para liquidación</p>
                     </div>
-                    <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-6 shadow-lg">
-                        <h3 class="text-red-900 font-semibold mb-2 text-lg">⏳ Pendiente</h3>
-                        <p class="text-white text-3xl font-bold" id="pendiente">0.00</p>
-                        <p class="text-red-100 text-sm">Por liquidar</p>
+                    <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-blue-900 font-semibold mb-2 text-lg">💰 Ganancia Neta</h3>
+                        <p class="text-white text-3xl font-bold" id="gananciaBetcris">$0.00</p>
+                        <p class="text-blue-100 text-sm">3% cobrado - % gastado</p>
                     </div>
                 </div>
 
@@ -94,9 +86,7 @@
                         <input type="number" id="dop" placeholder="Monto DOP" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="number" id="usd" placeholder="Monto USD" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="number" id="tasa" placeholder="Tasa DOP→USD" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
-                        <button onclick="agregarRecogida()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
-                            Agregar
-                        </button>
+                        <button onclick="agregarRecogida()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">Agregar</button>
                     </div>
                 </div>
 
@@ -111,6 +101,7 @@
                                 <th class="text-right py-3 px-3 font-semibold text-blue-900">Tasa</th>
                                 <th class="text-right py-3 px-3 font-semibold text-blue-900">Total USD</th>
                                 <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT Liquidar</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">3% Cobrado</th>
                                 <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
                             </tr>
                         </thead>
@@ -120,18 +111,12 @@
 
                 <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
                     <h2 class="text-xl font-bold text-blue-900 mb-4">💳 Compra USDT para Liquidar</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <input type="date" id="fechaC" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
                         <input type="number" id="cantC" placeholder="Cantidad USDT" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
-                        <input type="number" id="precioC" placeholder="Precio" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
-                        <select id="divisaC" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
-                            <option value="DOP">DOP</option>
-                            <option value="USD">USD</option>
-                        </select>
+                        <input type="number" id="porcC" placeholder="% Costo (ej: 1, 2, 3)" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="text" id="notasC" placeholder="Notas" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
-                        <button onclick="agregarCompra()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
-                            Agregar
-                        </button>
+                        <button onclick="agregarCompra()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">Agregar</button>
                     </div>
                 </div>
 
@@ -142,9 +127,8 @@
                             <tr class="border-b-2 border-gray-200">
                                 <th class="text-left py-3 px-3 font-semibold text-blue-900">Fecha</th>
                                 <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT</th>
-                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Precio</th>
-                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Divisa</th>
-                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Total</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">% Costo</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Costo USD</th>
                                 <th class="text-left py-3 px-3 font-semibold text-blue-900">Notas</th>
                                 <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
                             </tr>
@@ -154,7 +138,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN RUSOS -->
+            <!-- RUSOS -->
             <div id="seccionRusos" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl p-6 shadow-lg">
@@ -181,9 +165,7 @@
                         <input type="number" id="usdtRu" placeholder="USDT Recibidos" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="number" id="porcRu" placeholder="% Ganancia" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="text" id="notasRu" placeholder="Notas" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
-                        <button onclick="agregarRuso()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
-                            Agregar
-                        </button>
+                        <button onclick="agregarRuso()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">Agregar</button>
                     </div>
                 </div>
 
@@ -206,7 +188,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN TRANSACCIONES -->
+            <!-- TRANSACCIONES -->
             <div id="seccionTransacciones" class="hidden">
                 <div class="bg-white rounded-2xl p-4 mb-6 shadow-md border border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -232,16 +214,12 @@
                         <input type="number" id="precioM" placeholder="P. Mercado" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="number" id="tuPrecioT" placeholder="Tu Precio" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
                         <input type="date" id="fechaT" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
-                        <button onclick="agregarTrans()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
-                            Agregar
-                        </button>
+                        <button onclick="agregarTrans()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">Agregar</button>
                     </div>
                 </div>
 
                 <div class="flex gap-4 mb-6">
-                    <button onclick="exportarDatos()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
-                        📊 Exportar CSV
-                    </button>
+                    <button onclick="exportarDatos()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">📊 Exportar CSV</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -254,8 +232,8 @@
                         <p class="text-white text-3xl font-bold" id="vendT">0</p>
                     </div>
                     <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
-                        <h3 class="text-blue-900 font-semibold mb-2">Balance</h3>
-                        <p class="text-white text-3xl font-bold" id="balT">0</p>
+                        <h3 class="text-blue-900 font-semibold mb-2">Ganancia</h3>
+                        <p class="text-white text-3xl font-bold" id="ganT">$0</p>
                     </div>
                 </div>
 
@@ -275,7 +253,50 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN GRÁFICAS -->
+            <!-- REPORTES -->
+            <div id="seccionReportes" class="hidden">
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-blue-900">📋 Reporte Mensual</h2>
+                        <div class="flex items-center gap-4">
+                            <button onclick="cambiarMes(-1)" class="bg-blue-100 hover:bg-blue-200 text-blue-900 rounded-xl px-4 py-2 font-semibold transition-colors">← Anterior</button>
+                            <span id="mesActual" class="text-xl font-bold text-blue-900"></span>
+                            <button onclick="cambiarMes(1)" class="bg-blue-100 hover:bg-blue-200 text-blue-900 rounded-xl px-4 py-2 font-semibold transition-colors">Siguiente →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-amber-900 font-semibold mb-2 text-lg">💰 Betcris</h3>
+                        <p class="text-white text-2xl font-bold" id="reporteBetcrisGan">$0.00</p>
+                        <p class="text-amber-100 text-sm" id="reporteBetcrisRec">Recogido: $0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-purple-900 font-semibold mb-2 text-lg">🇷🇺 Rusos</h3>
+                        <p class="text-white text-2xl font-bold" id="reporteRusosGan">$0.00</p>
+                        <p class="text-purple-100 text-sm" id="reporteRusosUSDT">USDT: 0</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-green-900 font-semibold mb-2 text-lg">📊 Transacciones</h3>
+                        <p class="text-white text-2xl font-bold" id="reporteTransGan">$0.00</p>
+                        <p class="text-green-100 text-sm" id="reporteTransOps">Operaciones: 0</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-8 mb-6 shadow-xl text-center">
+                    <h3 class="text-white font-semibold mb-2 text-xl">🎯 GANANCIA TOTAL DEL MES</h3>
+                    <p class="text-white text-5xl font-bold" id="reporteTotal">$0.00</p>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="exportarPDF()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl px-8 py-4 font-bold shadow-lg transition-all text-lg">
+                        📄 Exportar Reporte PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRÁFICAS -->
             <div id="seccionGraficas" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
@@ -283,13 +304,13 @@
                         <canvas id="graficoGanancias"></canvas>
                     </div>
                     <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-                        <h3 class="text-blue-900 font-bold mb-4 text-lg">💰 Compras vs Ventas</h3>
-                        <canvas id="graficoComprasVentas"></canvas>
+                        <h3 class="text-blue-900 font-bold mb-4 text-lg">💰 Fuentes de Ganancia</h3>
+                        <canvas id="graficoFuentes"></canvas>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-                    <h3 class="text-blue-900 font-bold mb-4 text-lg">📈 Volumen por Divisa</h3>
-                    <canvas id="graficoVolumen"></canvas>
+                    <h3 class="text-blue-900 font-bold mb-4 text-lg">📈 Evolución del Negocio</h3>
+                    <canvas id="graficoEvolucion"></canvas>
                 </div>
             </div>
 
