@@ -3,286 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#003087">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="USDT Tracker">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <title>USDT Tracker Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%); min-height: 100vh; }
-        .tab-active { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-        .tab-inactive { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); }
+        body {
+            background: linear-gradient(135deg, #003087 0%, #0070ba 50%, #003087 100%);
+            min-height: 100vh;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #0070ba, #009cde);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 112, 186, 0.3);
+        }
+        .tab-inactive {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
-            <h1 class="text-4xl font-bold text-white mb-8">💰 USDT Tracker Pro</h1>
+<body class="p-4 md:p-6">
+    <div class="max-w-[1800px] mx-auto">
+        <div class="card-glass rounded-3xl shadow-2xl p-6 md:p-8 border border-white">
             
-            <div class="flex gap-2 mb-6 flex-wrap">
-                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-lg font-semibold cursor-pointer">💰 Betcris</button>
-                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer">🇷🇺 Rusos</button>
-                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer">📊 Transacciones</button>
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3 rounded-2xl shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-blue-900">USDT Tracker</h1>
+                        <p class="text-sm text-blue-600">Gestión Profesional</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- BETCRIS -->
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="cambiarTab('betcris')" id="tabBetcris" class="tab-active px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
+                    💰 Betcris
+                </button>
+                <button onclick="cambiarTab('rusos')" id="tabRusos" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
+                    🇷🇺 Ventas Rusos
+                </button>
+                <button onclick="cambiarTab('transacciones')" id="tabTransacciones" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
+                    📊 Transacciones
+                </button>
+                <button onclick="cambiarTab('graficas')" id="tabGraficas" class="tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer">
+                    📈 Estadísticas
+                </button>
+            </div>
+
+            <!-- SECCIÓN BETCRIS -->
             <div id="seccionBetcris">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-yellow-500/20 rounded-xl p-6 border border-yellow-500/30">
-                        <h3 class="text-yellow-300 font-semibold mb-2">Total a Liquidar</h3>
+                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-amber-900 font-semibold mb-2 text-lg">💵 Total a Liquidar</h3>
                         <p class="text-white text-3xl font-bold" id="totalLiquidar">0.00</p>
+                        <p class="text-amber-100 text-sm">USDT</p>
                     </div>
-                    <div class="bg-emerald-500/20 rounded-xl p-6 border border-emerald-500/30">
-                        <h3 class="text-emerald-300 font-semibold mb-2">USDT Comprados</h3>
+                    <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-green-900 font-semibold mb-2 text-lg">✅ USDT Comprados</h3>
                         <p class="text-white text-3xl font-bold" id="totalCompradosB">0.00</p>
+                        <p class="text-green-100 text-sm">Para liquidación</p>
                     </div>
-                    <div class="bg-red-500/20 rounded-xl p-6 border border-red-500/30">
-                        <h3 class="text-red-300 font-semibold mb-2">Pendiente</h3>
+                    <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-red-900 font-semibold mb-2 text-lg">⏳ Pendiente</h3>
                         <p class="text-white text-3xl font-bold" id="pendiente">0.00</p>
+                        <p class="text-red-100 text-sm">Por liquidar</p>
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Recogida</h2>
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">💰 Nueva Recogida Betcris</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="date" id="fechaR" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="dop" placeholder="DOP" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="usd" placeholder="USD" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="tasa" placeholder="Tasa" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <button onclick="agregarRecogida()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
+                        <input type="date" id="fechaR" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors">
+                        <input type="number" id="dop" placeholder="Monto DOP" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="usd" placeholder="Monto USD" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="tasa" placeholder="Tasa DOP→USD" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <button onclick="agregarRecogida()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
+                            Agregar
+                        </button>
                     </div>
                 </div>
 
-                <table class="w-full text-white text-sm mb-6">
-                    <thead><tr class="border-b border-white/20">
-                        <th class="text-left py-3 px-3">Fecha</th>
-                        <th class="text-right py-3 px-3">DOP</th>
-                        <th class="text-right py-3 px-3">USD</th>
-                        <th class="text-right py-3 px-3">USDT Liquidar</th>
-                        <th class="text-center py-3 px-3">-</th>
-                    </tr></thead>
-                    <tbody id="tablaR"></tbody>
-                </table>
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100 overflow-x-auto">
+                    <h3 class="text-lg font-bold text-blue-900 mb-3">📋 Recogidas</h3>
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Fecha</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">DOP</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">USD</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Tasa</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Total USD</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT Liquidar</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaR" class="text-gray-700"></tbody>
+                    </table>
+                </div>
 
-                <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">Compra USDT</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="date" id="fechaC" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="cantC" placeholder="Cantidad" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="precioC" placeholder="Precio" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="text" id="notasC" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <button onclick="agregarCompra()" class="bg-blue-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">💳 Compra USDT para Liquidar</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                        <input type="date" id="fechaC" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                        <input type="number" id="cantC" placeholder="Cantidad USDT" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="precioC" placeholder="Precio" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <select id="divisaC" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                            <option value="DOP">DOP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        <input type="text" id="notasC" placeholder="Notas" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <button onclick="agregarCompra()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
+                            Agregar
+                        </button>
                     </div>
                 </div>
 
-                <table class="w-full text-white text-sm">
-                    <thead><tr class="border-b border-white/20">
-                        <th class="text-left py-3 px-3">Fecha</th>
-                        <th class="text-right py-3 px-3">USDT</th>
-                        <th class="text-right py-3 px-3">Precio</th>
-                        <th class="text-left py-3 px-3">Notas</th>
-                        <th class="text-center py-3 px-3">-</th>
-                    </tr></thead>
-                    <tbody id="tablaC"></tbody>
-                </table>
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 overflow-x-auto">
+                    <h3 class="text-lg font-bold text-blue-900 mb-3">💳 Compras para Liquidar</h3>
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Fecha</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Precio</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Divisa</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Total</th>
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Notas</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaC" class="text-gray-700"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- RUSOS -->
+            <!-- SECCIÓN RUSOS -->
             <div id="seccionRusos" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-purple-500/20 rounded-xl p-6 border border-purple-500/30">
-                        <h3 class="text-purple-300 font-semibold mb-2">Ganancia Total</h3>
-                        <p class="text-white text-3xl font-bold" id="ganTotal">$0</p>
+                    <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-purple-900 font-semibold mb-2 text-lg">💰 Ganancia Total</h3>
+                        <p class="text-white text-3xl font-bold" id="ganTotal">$0.00</p>
+                        <p class="text-purple-100 text-sm">USD</p>
                     </div>
-                    <div class="bg-blue-500/20 rounded-xl p-6 border border-blue-500/30">
-                        <h3 class="text-blue-300 font-semibold mb-2">Tu Parte</h3>
-                        <p class="text-white text-3xl font-bold" id="tuParte">$0</p>
+                    <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-blue-900 font-semibold mb-2 text-lg">👤 Tu Parte (50%)</h3>
+                        <p class="text-white text-3xl font-bold" id="tuParte">$0.00</p>
+                        <p class="text-blue-100 text-sm">USD</p>
                     </div>
-                    <div class="bg-cyan-500/20 rounded-xl p-6 border border-cyan-500/30">
-                        <h3 class="text-cyan-300 font-semibold mb-2">Socio</h3>
-                        <p class="text-white text-3xl font-bold" id="socio">$0</p>
+                    <div class="bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-cyan-900 font-semibold mb-2 text-lg">🤝 Parte Socio (50%)</h3>
+                        <p class="text-white text-3xl font-bold" id="socio">$0.00</p>
+                        <p class="text-cyan-100 text-sm">USD</p>
                     </div>
                 </div>
 
-                <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Venta Rusos</h2>
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">🇷🇺 Nueva Venta a Rusos</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <input type="date" id="fechaRu" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="usdtRu" placeholder="USDT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="porcRu" placeholder="%" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="text" id="notasRu" placeholder="Notas" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <button onclick="agregarRuso()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
+                        <input type="date" id="fechaRu" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                        <input type="number" id="usdtRu" placeholder="USDT Recibidos" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="porcRu" placeholder="% Ganancia" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="text" id="notasRu" placeholder="Notas" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <button onclick="agregarRuso()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
+                            Agregar
+                        </button>
                     </div>
                 </div>
 
-                <table class="w-full text-white text-sm">
-                    <thead><tr class="border-b border-white/20">
-                        <th class="text-left py-3 px-3">Fecha</th>
-                        <th class="text-right py-3 px-3">USDT</th>
-                        <th class="text-right py-3 px-3">%</th>
-                        <th class="text-right py-3 px-3">Ganancia</th>
-                        <th class="text-right py-3 px-3">Tu Parte</th>
-                        <th class="text-left py-3 px-3">Notas</th>
-                        <th class="text-center py-3 px-3">-</th>
-                    </tr></thead>
-                    <tbody id="tablaRu"></tbody>
-                </table>
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Fecha</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">%</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Ganancia Total</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Tu Parte</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Socio</th>
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Notas</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaRu" class="text-gray-700"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- TRANSACCIONES -->
+            <!-- SECCIÓN TRANSACCIONES -->
             <div id="seccionTransacciones" class="hidden">
-                <div class="bg-white/5 rounded-xl p-6 mb-6 border border-white/10">
-                    <h2 class="text-xl font-semibold text-white mb-4">Nueva Transacción</h2>
+                <div class="bg-white rounded-2xl p-4 mb-6 shadow-md border border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="buscar" placeholder="🔍 Buscar..." onkeyup="filtrarTransacciones()" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="date" id="fechaDesde" onchange="filtrarTransacciones()" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                        <input type="date" id="fechaHasta" onchange="filtrarTransacciones()" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                        <select id="filtroTipo" onchange="filtrarTransacciones()" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                            <option value="">Todos</option>
+                            <option value="Compra">Compras</option>
+                            <option value="Venta">Ventas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-md border border-gray-100">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">📊 Nueva Transacción</h2>
                     <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <select id="tipo" class="bg-slate-800 text-white rounded-lg px-4 py-2">
+                        <select id="tipo" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
                             <option>Compra</option>
                             <option>Venta</option>
                         </select>
-                        <input type="number" id="cantT" placeholder="USDT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="precioM" placeholder="P. Mercado" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="number" id="tuPrecioT" placeholder="Tu Precio" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <input type="date" id="fechaT" class="bg-slate-800 text-white rounded-lg px-4 py-2">
-                        <button onclick="agregarTrans()" class="bg-emerald-500 text-white rounded-lg px-6 py-2 font-semibold">Agregar</button>
+                        <input type="number" id="cantT" placeholder="USDT" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="precioM" placeholder="P. Mercado" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="number" id="tuPrecioT" placeholder="Tu Precio" step="0.01" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none placeholder-gray-400">
+                        <input type="date" id="fechaT" class="bg-gray-50 text-gray-900 rounded-xl px-4 py-3 border-2 border-gray-200 focus:border-blue-500 focus:outline-none">
+                        <button onclick="agregarTrans()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
+                            Agregar
+                        </button>
                     </div>
                 </div>
 
+                <div class="flex gap-4 mb-6">
+                    <button onclick="exportarDatos()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl px-6 py-3 font-semibold shadow-lg transition-all">
+                        📊 Exportar CSV
+                    </button>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-emerald-500/20 rounded-xl p-6">
-                        <h3 class="text-emerald-300 font-semibold mb-2">Comprados</h3>
+                    <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-green-900 font-semibold mb-2">Comprados</h3>
                         <p class="text-white text-3xl font-bold" id="compT">0</p>
                     </div>
-                    <div class="bg-orange-500/20 rounded-xl p-6">
-                        <h3 class="text-orange-300 font-semibold mb-2">Vendidos</h3>
+                    <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-orange-900 font-semibold mb-2">Vendidos</h3>
                         <p class="text-white text-3xl font-bold" id="vendT">0</p>
                     </div>
-                    <div class="bg-blue-500/20 rounded-xl p-6">
-                        <h3 class="text-blue-300 font-semibold mb-2">Balance</h3>
+                    <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
+                        <h3 class="text-blue-900 font-semibold mb-2">Balance</h3>
                         <p class="text-white text-3xl font-bold" id="balT">0</p>
                     </div>
                 </div>
 
-                <table class="w-full text-white text-sm">
-                    <thead><tr class="border-b border-white/20">
-                        <th class="text-left py-3 px-3">Tipo</th>
-                        <th class="text-right py-3 px-3">USDT</th>
-                        <th class="text-right py-3 px-3">Ganancia</th>
-                        <th class="text-center py-3 px-3">Fecha</th>
-                        <th class="text-center py-3 px-3">-</th>
-                    </tr></thead>
-                    <tbody id="tablaT"></tbody>
-                </table>
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="text-left py-3 px-3 font-semibold text-blue-900">Tipo</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">USDT</th>
+                                <th class="text-right py-3 px-3 font-semibold text-blue-900">Ganancia</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Fecha</th>
+                                <th class="text-center py-3 px-3 font-semibold text-blue-900">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaT" class="text-gray-700"></tbody>
+                    </table>
+                </div>
             </div>
+
+            <!-- SECCIÓN GRÁFICAS -->
+            <div id="seccionGraficas" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
+                        <h3 class="text-blue-900 font-bold mb-4 text-lg">📊 Ganancias por Mes</h3>
+                        <canvas id="graficoGanancias"></canvas>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
+                        <h3 class="text-blue-900 font-bold mb-4 text-lg">💰 Compras vs Ventas</h3>
+                        <canvas id="graficoComprasVentas"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
+                    <h3 class="text-blue-900 font-bold mb-4 text-lg">📈 Volumen por Divisa</h3>
+                    <canvas id="graficoVolumen"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <script>
-let recogidas=JSON.parse(localStorage.getItem('rec')||'[]');
-let compras=JSON.parse(localStorage.getItem('comp')||'[]');
-let rusos=JSON.parse(localStorage.getItem('rus')||'[]');
-let trans=JSON.parse(localStorage.getItem('trans')||'[]');
-
-window.onload=()=>{
-    document.getElementById('fechaR').valueAsDate=new Date();
-    document.getElementById('fechaC').valueAsDate=new Date();
-    document.getElementById('fechaRu').valueAsDate=new Date();
-    document.getElementById('fechaT').valueAsDate=new Date();
-    actualizar();
-};
-
-function cambiarTab(t){
-    ['tabBetcris','tabRusos','tabTransacciones'].forEach(id=>document.getElementById(id).className='tab-inactive px-6 py-3 rounded-lg font-semibold cursor-pointer');
-    ['seccionBetcris','seccionRusos','seccionTransacciones'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).className='tab-active px-6 py-3 rounded-lg font-semibold cursor-pointer';
-    document.getElementById('seccion'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden');
-}
-
-function agregarRecogida(){
-    const f=document.getElementById('fechaR').value;
-    const d=parseFloat(document.getElementById('dop').value)||0;
-    const u=parseFloat(document.getElementById('usd').value)||0;
-    const t=parseFloat(document.getElementById('tasa').value)||0;
-    if(!f||(!d&&!u)){alert('Completa los datos');return;}
-    const du=t>0?d/t:0;
-    const tu=du+u;
-    recogidas.push({id:Date.now(),f,d,u,t,usdt:tu/1.03});
-    localStorage.setItem('rec',JSON.stringify(recogidas));
-    document.getElementById('dop').value='';
-    document.getElementById('usd').value='';
-    document.getElementById('tasa').value='';
-    actualizar();
-}
-
-function agregarCompra(){
-    const f=document.getElementById('fechaC').value;
-    const c=parseFloat(document.getElementById('cantC').value);
-    const p=parseFloat(document.getElementById('precioC').value);
-    const n=document.getElementById('notasC').value;
-    if(!f||!c||!p){alert('Completa los datos');return;}
-    compras.push({id:Date.now(),f,c,p,n});
-    localStorage.setItem('comp',JSON.stringify(compras));
-    document.getElementById('cantC').value='';
-    document.getElementById('precioC').value='';
-    document.getElementById('notasC').value='';
-    actualizar();
-}
-
-function agregarRuso(){
-    const f=document.getElementById('fechaRu').value;
-    const u=parseFloat(document.getElementById('usdtRu').value);
-    const p=parseFloat(document.getElementById('porcRu').value);
-    const n=document.getElementById('notasRu').value;
-    if(!f||!u||!p){alert('Completa los datos');return;}
-    const g=u*(p/100);
-    rusos.push({id:Date.now(),f,u,p,g,tp:g/2,n});
-    localStorage.setItem('rus',JSON.stringify(rusos));
-    document.getElementById('usdtRu').value='';
-    document.getElementById('porcRu').value='';
-    document.getElementById('notasRu').value='';
-    actualizar();
-}
-
-function agregarTrans(){
-    const t=document.getElementById('tipo').value;
-    const c=parseFloat(document.getElementById('cantT').value);
-    const pm=parseFloat(document.getElementById('precioM').value);
-    const tp=parseFloat(document.getElementById('tuPrecioT').value);
-    const f=document.getElementById('fechaT').value;
-    if(!c||!pm||!tp||!f){alert('Completa los datos');return;}
-    const g=(t==='Compra'?pm-tp:tp-pm)*c;
-    trans.push({id:Date.now(),t,c,g,f});
-    localStorage.setItem('trans',JSON.stringify(trans));
-    document.getElementById('cantT').value='';
-    document.getElementById('precioM').value='';
-    document.getElementById('tuPrecioT').value='';
-    actualizar();
-}
-
-function eliminar(arr,key,id){
-    const idx=arr.findIndex(x=>x.id===id);
-    if(idx>-1&&confirm('¿Eliminar?')){
-        arr.splice(idx,1);
-        localStorage.setItem(key,JSON.stringify(arr));
-        actualizar();
-    }
-}
-
-function actualizar(){
-    let tl=0,tc=0;
-    document.getElementById('tablaR').innerHTML=recogidas.map(r=>{tl+=r.usdt;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${r.f}</td><td class="text-right py-3 px-3">${r.d.toFixed(2)}</td><td class="text-right py-3 px-3">${r.u.toFixed(2)}</td><td class="text-right py-3 px-3 text-yellow-400 font-bold">${r.usdt.toFixed(2)}</td><td class="text-center py-3 px-3"><button onclick="eliminar(recogidas,'rec',${r.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
-    document.getElementById('tablaC').innerHTML=compras.map(c=>{tc+=c.c;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${c.f}</td><td class="text-right py-3 px-3 font-semibold">${c.c.toFixed(2)}</td><td class="text-right py-3 px-3">${c.p.toFixed(2)}</td><td class="py-3 px-3">${c.n||'-'}</td><td class="text-center py-3 px-3"><button onclick="eliminar(compras,'comp',${c.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
-    document.getElementById('totalLiquidar').textContent=tl.toFixed(2);
-    document.getElementById('totalCompradosB').textContent=tc.toFixed(2);
-    document.getElementById('pendiente').textContent=(tl-tc).toFixed(2);
-
-    let gt=0,gtp=0;
-    document.getElementById('tablaRu').innerHTML=rusos.map(r=>{gt+=r.g;gtp+=r.tp;return`<tr class="border-b border-white/10"><td class="py-3 px-3">${r.f}</td><td class="text-right py-3 px-3">${r.u.toFixed(2)}</td><td class="text-right py-3 px-3">${r.p}%</td><td class="text-right py-3 px-3 text-emerald-400 font-bold">$${r.g.toFixed(2)}</td><td class="text-right py-3 px-3 text-blue-400">$${r.tp.toFixed(2)}</td><td class="py-3 px-3">${r.n||'-'}</td><td class="text-center py-3 px-3"><button onclick="eliminar(rusos,'rus',${r.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
-    document.getElementById('ganTotal').textContent='$'+gt.toFixed(2);
-    document.getElementById('tuParte').textContent='$'+gtp.toFixed(2);
-    document.getElementById('socio').textContent='$'+gtp.toFixed(2);
-
-    let comp=0,vend=0;
-    document.getElementById('tablaT').innerHTML=trans.map(t=>{t.t==='Compra'?comp+=t.c:vend+=t.c;const col=t.g>0?'text-green-400':'text-red-400';return`<tr class="border-b border-white/10"><td class="py-3 px-3"><span class="px-3 py-1 rounded-full text-xs ${t.t==='Compra'?'bg-blue-500/20 text-blue-300':'bg-orange-500/20 text-orange-300'}">${t.t}</span></td><td class="text-right py-3 px-3 font-semibold">${t.c.toFixed(2)}</td><td class="text-right py-3 px-3 ${col} font-bold">${t.g.toFixed(2)}</td><td class="text-center py-3 px-3">${t.f}</td><td class="text-center py-3 px-3"><button onclick="eliminar(trans,'trans',${t.id})" class="text-red-400">🗑️</button></td></tr>`;}).join('');
-    document.getElementById('compT').textContent=comp.toFixed(2);
-    document.getElementById('vendT').textContent=vend.toFixed(2);
-    document.getElementById('balT').textContent=(comp-vend).toFixed(2);
-}
-    </script>
+    <script src="./app.js"></script>
 </body>
 </html>
