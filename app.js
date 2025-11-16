@@ -6,22 +6,31 @@ let trans = JSON.parse(localStorage.getItem('transaccionesUSDT') || '[]');
 let transFiltradas = [...trans];
 let mesReporte = new Date();
 
+// Migrar datos antiguos (agregar campo estado si no existe)
+recogidas = recogidas.map(r => ({ ...r, estado: r.estado || 'pendiente' }));
+compras = compras.map(c => ({ ...c, estado: c.estado || 'pendiente' }));
+rusos = rusos.map(r => ({ ...r, estado: r.estado || 'pendiente' }));
+localStorage.setItem('recogidasBetcris', JSON.stringify(recogidas));
+localStorage.setItem('comprasBetcris', JSON.stringify(compras));
+localStorage.setItem('ventasRusos', JSON.stringify(rusos));
+
 window.onload = function() {
     const hoy = new Date().toISOString().split('T')[0];
     document.getElementById('fechaR').value = hoy;
     document.getElementById('fechaC').value = hoy;
     document.getElementById('fechaRu').value = hoy;
     document.getElementById('fechaT').value = hoy;
+    document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleString('es-DO');
     actualizar();
     actualizarReporte();
 };
 
 function cambiarTab(tab) {
-    ['tabBetcris', 'tabRusos', 'tabTransacciones', 'tabReportes', 'tabGraficas'].forEach(id => {
+    ['tabBetcris', 'tabRusos', 'tabTransacciones', 'tabReportes', 'tabHistorial'].forEach(id => {
         document.getElementById(id).className = 'tab-inactive px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer';
     });
     
-    ['seccionBetcris', 'seccionRusos', 'seccionTransacciones', 'seccionReportes', 'seccionGraficas'].forEach(id => {
+    ['seccionBetcris', 'seccionRusos', 'seccionTransacciones', 'seccionReportes', 'seccionHistorial'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
     });
     
@@ -31,8 +40,8 @@ function cambiarTab(tab) {
     document.getElementById(tabId).className = 'tab-active px-6 py-3 rounded-xl font-semibold transition-all cursor-pointer';
     document.getElementById(seccionId).classList.remove('hidden');
     
-    if (tab === 'graficas') actualizarGraficas();
     if (tab === 'reportes') actualizarReporte();
+    if (tab === 'historial') actualizarHistorial();
 }
 
 // BETCRIS - Recogidas
@@ -66,7 +75,8 @@ function agregarRecogida() {
         dopAUsd: dopAUsd,
         totalUsd: totalUsd,
         usdtLiquidar: usdtLiquidar,
-        tresPorciento: tresPorciento
+        tresPorciento: tresPorciento,
+        estado: 'pendiente'
     });
     
     localStorage.setItem('recogidasBetcris', JSON.stringify(recogidas));
@@ -74,6 +84,18 @@ function agregarRecogida() {
     document.getElementById('usd').value = '';
     document.getElementById('tasa').value = '';
     actualizar();
+}
+
+function liquidarRecogida(id) {
+    const recogida = recogidas.find(r => r.id === id);
+    if (!recogida) return;
+    
+    if (confirm(`¿Liquidar esta recogida?\n\nUSDT: ${recogida.usdtLiquidar.toFixed(2)}\n3% Ganado: $${recogida.tresPorciento.toFixed(2)}`)) {
+        recogida.estado = 'liquidado';
+        recogida.fechaLiquidacion = new Date().toISOString().split('T')[0];
+        localStorage.setItem('recogidasBetcris', JSON.stringify(recogidas));
+        actualizar();
+    }
 }
 
 function eliminarRecogida(id) {
@@ -103,7 +125,8 @@ function agregarCompra() {
         cantidad: c,
         porcentaje: p,
         costoUSD: costoUSD,
-        notas: n
+        notas: n,
+        estado: 'pendiente'
     });
     
     localStorage.setItem('comprasBetcris', JSON.stringify(compras));
@@ -111,6 +134,18 @@ function agregarCompra() {
     document.getElementById('porcC').value = '';
     document.getElementById('notasC').value = '';
     actualizar();
+}
+
+function liquidarCompra(id) {
+    const compra = compras.find(c => c.id === id);
+    if (!compra) return;
+    
+    if (confirm(`¿Liquidar esta compra?\n\nCosto: $${compra.costoUSD.toFixed(2)}`)) {
+        compra.estado = 'liquidado';
+        compra.fechaLiquidacion = new Date().toISOString().split('T')[0];
+        localStorage.setItem('comprasBetcris', JSON.stringify(compras));
+        actualizar();
+    }
 }
 
 function eliminarCompra(id) {
@@ -143,7 +178,8 @@ function agregarRuso() {
         gananciaTotal: gananciaTotal,
         tuParte: tuParte,
         parteSocio: tuParte,
-        notas: n
+        notas: n,
+        estado: 'pendiente'
     });
     
     localStorage.setItem('ventasRusos', JSON.stringify(rusos));
@@ -151,6 +187,18 @@ function agregarRuso() {
     document.getElementById('porcRu').value = '';
     document.getElementById('notasRu').value = '';
     actualizar();
+}
+
+function pagarSocio(id) {
+    const venta = rusos.find(r => r.id === id);
+    if (!venta) return;
+    
+    if (confirm(`¿Registrar pago al socio?\n\nMonto: $${venta.parteSocio.toFixed(2)}`)) {
+        venta.estado = 'pagado';
+        venta.fechaPago = new Date().toISOString().split('T')[0];
+        localStorage.setItem('ventasRusos', JSON.stringify(rusos));
+        actualizar();
+    }
 }
 
 function eliminarRuso(id) {
@@ -238,23 +286,32 @@ function actualizar() {
     actualizarTablaBetcris();
     actualizarTablaRusos();
     actualizarTablaTransacciones();
+    document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleString('es-DO');
 }
 
 function actualizarTablaBetcris() {
-    let totalLiquidar = 0;
-    let totalComprado = 0;
-    let totalTresPorciento = 0;
-    let totalCostoCompras = 0;
+    // Solo contar pendientes
+    const recogidasPendientes = recogidas.filter(r => r.estado === 'pendiente');
+    const comprasPendientes = compras.filter(c => c.estado === 'pendiente');
     
+    let totalLiquidar = recogidasPendientes.reduce((sum, r) => sum + r.usdtLiquidar, 0);
+    let totalComprado = comprasPendientes.reduce((sum, c) => sum + c.cantidad, 0);
+    let totalTresPorciento = recogidasPendientes.reduce((sum, r) => sum + r.tresPorciento, 0);
+    let totalCostoCompras = comprasPendientes.reduce((sum, c) => sum + c.costoUSD, 0);
+    let gananciaBetcris = totalTresPorciento - totalCostoCompras;
+    
+    document.getElementById('totalLiquidar').textContent = totalLiquidar.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    document.getElementById('totalCompradosB').textContent = totalComprado.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    document.getElementById('gananciaBetcris').textContent = '$' + gananciaBetcris.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    
+    // Tabla recogidas
     const tbodyR = document.getElementById('tablaR');
     tbodyR.innerHTML = '';
     
     recogidas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(r => {
-        totalLiquidar += r.usdtLiquidar;
-        totalTresPorciento += r.tresPorciento;
-        
+        const esLiquidado = r.estado === 'liquidado';
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-gray-100 hover:bg-blue-50 transition-colors';
+        tr.className = `border-b border-gray-100 hover:bg-blue-50 transition-colors ${esLiquidado ? 'row-liquidado' : ''}`;
         tr.innerHTML = `
             <td class="py-3 px-3">${r.fecha}</td>
             <td class="text-right py-3 px-3 font-mono">${r.dop.toLocaleString('es-DO', {minimumFractionDigits: 2})}</td>
@@ -264,21 +321,29 @@ function actualizarTablaBetcris() {
             <td class="text-right py-3 px-3 font-mono text-blue-600 font-bold">${r.usdtLiquidar.toFixed(2)}</td>
             <td class="text-right py-3 px-3 font-mono text-emerald-600 font-bold">$${r.tresPorciento.toFixed(2)}</td>
             <td class="text-center py-3 px-3">
-                <button onclick="eliminarRecogida(${r.id})" class="text-red-600 hover:text-red-700 transition-colors">🗑️</button>
+                <span class="${esLiquidado ? 'badge-liquidado' : 'badge-pendiente'}">
+                    ${esLiquidado ? '✓ Liquidado' : '⏳ Pendiente'}
+                </span>
+            </td>
+            <td class="text-center py-3 px-3">
+                ${esLiquidado ? 
+                    `<span class="text-green-600 text-xs">${r.fechaLiquidacion}</span>` :
+                    `<button onclick="liquidarRecogida(${r.id})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm mr-1 transition-colors">✓ Liquidar</button>`
+                }
+                <button onclick="eliminarRecogida(${r.id})" class="text-red-600 hover:text-red-700 transition-colors text-lg">🗑️</button>
             </td>
         `;
         tbodyR.appendChild(tr);
     });
     
+    // Tabla compras
     const tbodyC = document.getElementById('tablaC');
     tbodyC.innerHTML = '';
     
     compras.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(c => {
-        totalComprado += c.cantidad;
-        totalCostoCompras += c.costoUSD;
-        
+        const esLiquidado = c.estado === 'liquidado';
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-gray-100 hover:bg-blue-50 transition-colors';
+        tr.className = `border-b border-gray-100 hover:bg-blue-50 transition-colors ${esLiquidado ? 'row-liquidado' : ''}`;
         tr.innerHTML = `
             <td class="py-3 px-3">${c.fecha}</td>
             <td class="text-right py-3 px-3 font-mono font-semibold">${c.cantidad.toFixed(2)}</td>
@@ -286,32 +351,39 @@ function actualizarTablaBetcris() {
             <td class="text-right py-3 px-3 font-mono text-red-600 font-bold">$${c.costoUSD.toFixed(2)}</td>
             <td class="py-3 px-3 text-xs">${c.notas || '-'}</td>
             <td class="text-center py-3 px-3">
-                <button onclick="eliminarCompra(${c.id})" class="text-red-600 hover:text-red-700 transition-colors">🗑️</button>
+                <span class="${esLiquidado ? 'badge-liquidado' : 'badge-pendiente'}">
+                    ${esLiquidado ? '✓ Liquidado' : '⏳ Pendiente'}
+                </span>
+            </td>
+            <td class="text-center py-3 px-3">
+                ${esLiquidado ? 
+                    `<span class="text-green-600 text-xs">${c.fechaLiquidacion}</span>` :
+                    `<button onclick="liquidarCompra(${c.id})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm mr-1 transition-colors">✓ Liquidar</button>`
+                }
+                <button onclick="eliminarCompra(${c.id})" class="text-red-600 hover:text-red-700 transition-colors text-lg">🗑️</button>
             </td>
         `;
         tbodyC.appendChild(tr);
     });
-    
-    const gananciaBetcris = totalTresPorciento - totalCostoCompras;
-    
-    document.getElementById('totalLiquidar').textContent = totalLiquidar.toLocaleString('es-DO', {minimumFractionDigits: 2});
-    document.getElementById('totalCompradosB').textContent = totalComprado.toLocaleString('es-DO', {minimumFractionDigits: 2});
-    document.getElementById('gananciaBetcris').textContent = '$' + gananciaBetcris.toLocaleString('es-DO', {minimumFractionDigits: 2});
 }
 
 function actualizarTablaRusos() {
+    // Solo contar pendientes
+    const rusosPendientes = rusos.filter(r => r.estado === 'pendiente');
+    const totalGanancia = rusosPendientes.reduce((sum, r) => sum + r.gananciaTotal, 0);
+    const totalTuParte = rusosPendientes.reduce((sum, r) => sum + r.tuParte, 0);
+    
+    document.getElementById('ganTotal').textContent = '$' + totalGanancia.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    document.getElementById('tuParte').textContent = '$' + totalTuParte.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    document.getElementById('socio').textContent = '$' + totalTuParte.toLocaleString('es-DO', {minimumFractionDigits: 2});
+    
     const tbody = document.getElementById('tablaRu');
     tbody.innerHTML = '';
     
-    let totalGanancia = 0;
-    let totalTuParte = 0;
-    
     rusos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(r => {
-        totalGanancia += r.gananciaTotal;
-        totalTuParte += r.tuParte;
-        
+        const esPagado = r.estado === 'pagado';
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-gray-100 hover:bg-blue-50 transition-colors';
+        tr.className = `border-b border-gray-100 hover:bg-blue-50 transition-colors ${esPagado ? 'row-liquidado' : ''}`;
         tr.innerHTML = `
             <td class="py-3 px-3">${r.fecha}</td>
             <td class="text-right py-3 px-3 font-mono font-semibold">${r.usdt.toFixed(2)}</td>
@@ -321,15 +393,20 @@ function actualizarTablaRusos() {
             <td class="text-right py-3 px-3 font-mono text-cyan-600 font-semibold">$${r.parteSocio.toFixed(2)}</td>
             <td class="py-3 px-3 text-xs">${r.notas || '-'}</td>
             <td class="text-center py-3 px-3">
-                <button onclick="eliminarRuso(${r.id})" class="text-red-600 hover:text-red-700 transition-colors">🗑️</button>
+                <span class="${esPagado ? 'badge-liquidado' : 'badge-pendiente'}">
+                    ${esPagado ? '✓ Pagado' : '⏳ Pendiente'}
+                </span>
+            </td>
+            <td class="text-center py-3 px-3">
+                ${esPagado ? 
+                    `<span class="text-green-600 text-xs">${r.fechaPago}</span>` :
+                    `<button onclick="pagarSocio(${r.id})" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-sm mr-1 transition-colors">💰 Pagar</button>`
+                }
+                <button onclick="eliminarRuso(${r.id})" class="text-red-600 hover:text-red-700 transition-colors text-lg">🗑️</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
-    
-    document.getElementById('ganTotal').textContent = '$' + totalGanancia.toLocaleString('es-DO', {minimumFractionDigits: 2});
-    document.getElementById('tuParte').textContent = '$' + totalTuParte.toLocaleString('es-DO', {minimumFractionDigits: 2});
-    document.getElementById('socio').textContent = '$' + totalTuParte.toLocaleString('es-DO', {minimumFractionDigits: 2});
 }
 
 function actualizarTablaTransacciones() {
@@ -358,7 +435,7 @@ function actualizarTablaTransacciones() {
             <td class="text-right py-3 px-3 font-mono ${colorGanancia} font-bold">$${t.ganancia.toFixed(2)}</td>
             <td class="text-center py-3 px-3">${t.fecha}</td>
             <td class="text-center py-3 px-3">
-                <button onclick="eliminarTrans(${t.id})" class="text-red-600 hover:text-red-700 transition-colors">🗑️</button>
+                <button onclick="eliminarTrans(${t.id})" class="text-red-600 hover:text-red-700 transition-colors text-lg">🗑️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -367,6 +444,90 @@ function actualizarTablaTransacciones() {
     document.getElementById('compT').textContent = totalComprado.toLocaleString('es-DO', {minimumFractionDigits: 2});
     document.getElementById('vendT').textContent = totalVendido.toLocaleString('es-DO', {minimumFractionDigits: 2});
     document.getElementById('ganT').textContent = '$' + totalGanancia.toLocaleString('es-DO', {minimumFractionDigits: 2});
+}
+
+// HISTORIAL
+function actualizarHistorial() {
+    const historialBetcrisDiv = document.getElementById('historialBetcris');
+    const historialRusosDiv = document.getElementById('historialRusos');
+    
+    // Betcris
+    const recogidasLiquidadas = recogidas.filter(r => r.estado === 'liquidado').sort((a, b) => new Date(b.fechaLiquidacion) - new Date(a.fechaLiquidacion));
+    const comprasLiquidadas = compras.filter(c => c.estado === 'liquidado').sort((a, b) => new Date(b.fechaLiquidacion) - new Date(a.fechaLiquidacion));
+    
+    if (recogidasLiquidadas.length === 0 && comprasLiquidadas.length === 0) {
+        historialBetcrisDiv.innerHTML = '<p class="text-gray-500 text-center py-8">No hay liquidaciones registradas</p>';
+    } else {
+        let html = '<div class="space-y-3">';
+        
+        if (recogidasLiquidadas.length > 0) {
+            html += '<h4 class="font-semibold text-blue-700 mb-3 text-sm uppercase tracking-wide">Recogidas Liquidadas</h4>';
+            recogidasLiquidadas.forEach(r => {
+                html += `
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm text-gray-600">📅 ${r.fecha}</span>
+                            <span class="badge-liquidado">Liquidado: ${r.fechaLiquidacion}</span>
+                        </div>
+                        <div class="font-semibold text-gray-800">
+                            DOP ${r.dop.toLocaleString('es-DO', {minimumFractionDigits: 2})} → 
+                            ${r.usdtLiquidar.toFixed(2)} USDT
+                        </div>
+                        <div class="text-green-600 font-bold mt-1">Ganancia: $${r.tresPorciento.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+        }
+        
+        if (comprasLiquidadas.length > 0) {
+            html += '<h4 class="font-semibold text-blue-700 mb-3 mt-6 text-sm uppercase tracking-wide">Compras Liquidadas</h4>';
+            comprasLiquidadas.forEach(c => {
+                html += `
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm text-gray-600">📅 ${c.fecha}</span>
+                            <span class="badge-liquidado">Liquidado: ${c.fechaLiquidacion}</span>
+                        </div>
+                        <div class="font-semibold text-gray-800">
+                            ${c.cantidad.toFixed(2)} USDT (${c.porcentaje}%)
+                        </div>
+                        <div class="text-red-600 font-bold mt-1">Costo: $${c.costoUSD.toFixed(2)}</div>
+                        ${c.notas ? `<div class="text-xs text-gray-600 mt-1">${c.notas}</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        html += '</div>';
+        historialBetcrisDiv.innerHTML = html;
+    }
+    
+    // Rusos
+    const rusosPagados = rusos.filter(r => r.estado === 'pagado').sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago));
+    
+    if (rusosPagados.length === 0) {
+        historialRusosDiv.innerHTML = '<p class="text-gray-500 text-center py-8">No hay pagos registrados</p>';
+    } else {
+        let html = '<div class="space-y-3">';
+        rusosPagados.forEach(r => {
+            html += `
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm text-gray-600">📅 ${r.fecha}</span>
+                        <span class="badge-liquidado">Pagado: ${r.fechaPago}</span>
+                    </div>
+                    <div class="font-semibold text-gray-800">
+                        ${r.usdt.toFixed(2)} USDT (${r.porcentaje}%)
+                    </div>
+                    <div class="text-purple-600 font-bold mt-1">Ganancia Total: $${r.gananciaTotal.toFixed(2)}</div>
+                    <div class="text-amber-600 font-semibold mt-1">Pagado al socio: $${r.parteSocio.toFixed(2)}</div>
+                    ${r.notas ? `<div class="text-xs text-gray-600 mt-1">${r.notas}</div>` : ''}
+                </div>
+            `;
+        });
+        html += '</div>';
+        historialRusosDiv.innerHTML = html;
+    }
 }
 
 // REPORTES
@@ -573,152 +734,4 @@ function exportarPDF() {
     doc.text(`Generado: ${new Date().toLocaleString('es-DO')}`, 105, 285, { align: 'center' });
     
     doc.save(`Reporte_${mesStr}.pdf`);
-}
-
-// GRÁFICAS
-function actualizarGraficas() {
-    // Ganancias por mes
-    const meses = {};
-    
-    recogidas.forEach(r => {
-        const mes = r.fecha.substring(0, 7);
-        if (!meses[mes]) meses[mes] = { betcris: 0, rusos: 0, trans: 0 };
-    });
-    
-    compras.forEach(c => {
-        const mes = c.fecha.substring(0, 7);
-        if (!meses[mes]) meses[mes] = { betcris: 0, rusos: 0, trans: 0 };
-    });
-    
-    recogidas.forEach(r => {
-        const mes = r.fecha.substring(0, 7);
-        meses[mes].betcris += r.tresPorciento;
-    });
-    
-    compras.forEach(c => {
-        const mes = c.fecha.substring(0, 7);
-        meses[mes].betcris -= c.costoUSD;
-    });
-    
-    rusos.forEach(r => {
-        const mes = r.fecha.substring(0, 7);
-        if (!meses[mes]) meses[mes] = { betcris: 0, rusos: 0, trans: 0 };
-        meses[mes].rusos += r.tuParte;
-    });
-    
-    trans.forEach(t => {
-        const mes = t.fecha.substring(0, 7);
-        if (!meses[mes]) meses[mes] = { betcris: 0, rusos: 0, trans: 0 };
-        meses[mes].trans += t.ganancia;
-    });
-    
-    const labels = Object.keys(meses).sort();
-    
-    const ctxGan = document.getElementById('graficoGanancias');
-    if (window.chartGan) window.chartGan.destroy();
-    window.chartGan = new Chart(ctxGan, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Betcris',
-                    data: labels.map(m => meses[m].betcris),
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Rusos',
-                    data: labels.map(m => meses[m].rusos),
-                    borderColor: '#a855f7',
-                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Transacciones',
-                    data: labels.map(m => meses[m].trans),
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: '#1e3a8a', font: { weight: 'bold' } } }
-            },
-            scales: {
-                y: {
-                    ticks: { color: '#1e3a8a' },
-                    grid: { color: 'rgba(0, 48, 135, 0.1)' }
-                },
-                x: {
-                    ticks: { color: '#1e3a8a' },
-                    grid: { color: 'rgba(0, 48, 135, 0.1)' }
-                }
-            }
-        }
-    });
-    
-    // Fuentes de ganancia
-    const totalBetcris = recogidas.reduce((s, r) => s + r.tresPorciento, 0) - compras.reduce((s, c) => s + c.costoUSD, 0);
-    const totalRusos = rusos.reduce((s, r) => s + r.tuParte, 0);
-    const totalTrans = trans.reduce((s, t) => s + t.ganancia, 0);
-    
-    const ctxFuentes = document.getElementById('graficoFuentes');
-    if (window.chartFuentes) window.chartFuentes.destroy();
-    window.chartFuentes = new Chart(ctxFuentes, {
-        type: 'doughnut',
-        data: {
-            labels: ['Betcris', 'Rusos', 'Transacciones'],
-            datasets: [{
-                data: [totalBetcris, totalRusos, totalTrans],
-                backgroundColor: ['#f59e0b', '#a855f7', '#10b981'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: '#1e3a8a', font: { weight: 'bold' } } }
-            }
-        }
-    });
-    
-    // Evolución
-    const ctxEvol = document.getElementById('graficoEvolucion');
-    if (window.chartEvol) window.chartEvol.destroy();
-    window.chartEvol = new Chart(ctxEvol, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ganancia Total',
-                data: labels.map(m => meses[m].betcris + meses[m].rusos + meses[m].trans),
-                backgroundColor: '#0070ba',
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: '#1e3a8a', font: { weight: 'bold' } } }
-            },
-            scales: {
-                y: {
-                    ticks: { color: '#1e3a8a' },
-                    grid: { color: 'rgba(0, 48, 135, 0.1)' }
-                },
-                x: {
-                    ticks: { color: '#1e3a8a' },
-                    grid: { color: 'rgba(0, 48, 135, 0.1)' }
-                }
-            }
-        }
-    });
 }
